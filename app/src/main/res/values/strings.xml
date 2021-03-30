@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Accessibility Broadcast Dev</string>
+    <string name="app_description">Allows a developer to send commands via the Android Debug Bridge to have precise control of Android accessibility controls, such as focus and volume. You need to have developer settings enabled, and know how to use broadcasts with Android and the Android Debug Bridge.</string>
+
+    <string name="next">Next</string>
+    <string name="prev">Prev</string>
+    <string name="accessibility_service_label">Accessibility Broadcast Dev</string>
+    <string name="enable_instructions">Every time Talkback is toggled the accessibility service is turned off you will need to \n\n\t\t1. open accessibility settings\n\t\t2. turn on accessibility\n\t\t3. enable the service</string>
+    <string name="button_action_open_accessibility_menu"> ~ Open Accessibility Menu ~</string>
+    <string name="button_action_open_settings">Open settings</string>
+</resources>
