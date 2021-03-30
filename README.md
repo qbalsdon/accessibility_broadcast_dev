@@ -75,9 +75,9 @@ adb pull /mnt/sdcard/some_awesome_action
 3. Open up a [hex editor][5] and identify the ups and downs
 e.g. this is a VOLUME_UP, KEY_DOWN:
 
-> 00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 0a | 0b | 0c | 0d | 0e | 0f<br/>
-> 03 | 88 | 61 | 60 | 9e | 5e | 0a | 00 | 01 | 00 | 73 | 00 | 01 | 00 | 00 | 00<br/>
-> 03 | 88 | 61 | 60 | 9e | 5e | 0a | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00<br/>
+> `00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 0a | 0b | 0c | 0d | 0e | 0f`<br/>
+> `03 | 88 | 61 | 60 | 9e | 5e | 0a | 00 | 01 | 00 | 73 | 00 | 01 | 00 | 00 | 00`<br/>
+> `03 | 88 | 61 | 60 | 9e | 5e | 0a | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00`<br/>
 
 if you run `adb shell getevent -l` and `adb shell getevent -lp` you'll find that `73` is the key (position 0a, specifically, the VOLUME_UP key) and position 0c is the event type (down). Every press has a reset (all 00's).
 
