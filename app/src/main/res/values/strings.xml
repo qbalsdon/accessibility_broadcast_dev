@@ -5,7 +5,9 @@
     <string name="next">Next</string>
     <string name="prev">Prev</string>
     <string name="accessibility_service_label">Accessibility Broadcast Dev</string>
-    <string name="enable_instructions">Every time Talkback is toggled the accessibility service is turned off you will need to \n\n\t\t1. open accessibility settings\n\t\t2. turn on accessibility\n\t\t3. enable the service</string>
+    <string name="enable_instructions">Run\nadb shell settings put secure enabled_accessibility_services [service1]:[service2]</string>
     <string name="button_action_open_accessibility_menu"> ~ Open Accessibility Menu ~</string>
     <string name="button_action_open_settings">Open settings</string>
+    <string name="accessibility_service_description">The service allows developers to use the Android Debug Bridge to control accessibility actions for testing and automation purposes. It provides a BroadcastReceiver to which developers can send instructions for accessibility navigation\n\nWhy not use a keyboard with switch access?\n\nBecause then I can\'t debug apps, and if I do wireless debugging, I drain the battery, and w/less debugging is not exactly consistent.</string>
+    <string name="button_action_run_debug_action">Run current debug action</string>
 </resources>

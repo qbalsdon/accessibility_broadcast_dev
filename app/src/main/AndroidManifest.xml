@@ -22,7 +22,7 @@
         </activity>
 
         <service
-            android:name="com.balsdon.accessibilityBroadcastService.AccessibilityBroadcastService"
+            android:name="com.balsdon.accessibilityBroadcastService.AccessibilityDeveloperService"
             android:enabled="true"
             android:label="@string/accessibility_service_label"
             android:description="@string/accessibility_service_label"

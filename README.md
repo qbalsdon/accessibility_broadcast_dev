@@ -88,17 +88,21 @@ if you run `adb shell getevent -l` and `adb shell getevent -lp` you'll find that
 You should now be able to run the following adb commands:
 ```
 adb shell am broadcast -a com.balsdon.talkback.accessibility
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_NEXT"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_PREV"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_HEADING_NEXT"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_HEADING_PREV"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_UP"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_DOWN"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_SET" --ei PARAMETER_VOLUME 20
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "NEXT_ELEMENT"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "PREV_ELEMENT"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "NEXT_ELEMENT_TYPE"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "PREV_ELEMENT_TYPE"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "NEXT_HEADING"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "PREV_HEADING"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "VOLUME_UP"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "VOLUME_DOWN"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "VOLUME_SET" --ei PARAMETER_VOLUME 20
 
 //TODO: [BUG]
 adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_MENU"
 ```
+
+adb shell am broadcast -a com.google.android.accessibility.talkback.controller.GestureActionPerformedAction -e com.google.android.accessibility.talkback.controller.ShortcutGestureExtraAction
 
 The first two are the same, they fire an intent that will tell the screen reader to focus on the next available element. Sending `-e ACTION "[PARAMETER]"`
   - `ACTION_PREV` will inform the service to focus on the previous element
@@ -115,6 +119,8 @@ The first two are the same, they fire an intent that will tell the screen reader
 ## Further reading:
 
  - [Android Accessibility Development Doesn't Have to Be Scary][10]
+ - [Building with accessibility in mind][11]
+ - [Build more accessible apps][12]
  - [Testing gestures][6]
  - [Accessibility scanner][7]
  - [Google I/O on Accessibility][8]
@@ -122,8 +128,15 @@ The first two are the same, they fire an intent that will tell the screen reader
 
 ## TODO
 
+ - Resolve the disconnect between Gesture and Action
+     - Currently the service takes actions for users, but if they are not my expected defaults they may behave differently. For example: Swiping from higher to lower on the screen on some devices might highlight the next heading, while other devices may adjust selection granularity type (i.e. enable you to use NEXT and PREV to navigate headings, paragraphs, links, characters).
+     - Option 1: Convert actions to gestures (easy, but makes me sad. Also, more complex gestures don't work)
+     - Option 2: Find a method of doing actions that doesn't involve gestures. Currently looking at [AccessibilityNodeInfo.performAction][13]
  - [FEATURE] Add a "perform click" action
+ - [FEATURE] Add a "focus by id" action - might aid my scripts
+ - [FEATURE] Create a map of the current screen
  - [BUG] 01 Open the accessibility menu. Currently the code is there but something is not happening
+
 
 [1]: https://stackoverflow.com/questions/37460463/how-to-send-key-down-and-key-up-events-separately-on-android-using-adb
 [2]: https://developer.android.com/guide/topics/ui/accessibility/service
@@ -135,3 +148,6 @@ The first two are the same, they fire an intent that will tell the screen reader
 [8]: https://www.youtube.com/results?search_query=Whats+new+in+accessibility+google+io
 [9]: https://medium.com/microsoft-mobile-engineering/android-accessibility-resolving-common-talkback-issues-3c45076bcdf6
 [10]: https://wire.engineering/engineering/accessibility/android/2020/07/10/android-accessibility-development-doesnt-have-to-be-scary.html
+[11]: https://www.android.com/accessibility/
+[12]: https://developer.android.com/guide/topics/ui/accessibility
+[13]: https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#performAction(int,%20android.os.Bundle)

@@ -73,6 +73,10 @@ class MainActivity : AppCompatActivity() {
             delayThen(1000) { updateVolume() }
         }
 
+        debugAction.setOnClickListener {
+            broadcastAction(AccessibilityActionReceiver.ACTION_DEBUG)
+        }
+
         //TODO: Fix this!
         openMenu.setOnClickListener {
             broadcastAction(AccessibilityActionReceiver.ACTION_MENU)
@@ -101,6 +105,7 @@ class MainActivity : AppCompatActivity() {
     private val navigateLeft: Button by lazy { findViewById(R.id.navigateLeft) }
     private val navigateRight: Button by lazy { findViewById(R.id.navigateRight) }
     private val openMenu: Button by lazy { findViewById(R.id.openMenu) }
+    private val debugAction: Button by lazy { findViewById(R.id.debugAction) }
     private val settingsButton: Button by lazy { findViewById(R.id.settingsButton) }
     private val volumeUp: AppCompatImageButton by lazy { findViewById(R.id.volumeUp) }
     private val volumeDown: AppCompatImageButton by lazy { findViewById(R.id.volumeDown) }
