@@ -1,4 +1,4 @@
-package com.balsdon.accessibilityBroadcastService
+package com.balsdon.AccessibilityDeveloperService
 
 import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
@@ -29,7 +29,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
             object : AccessibilityButtonController.AccessibilityButtonCallback() {
                 override fun onClicked(controller: AccessibilityButtonController) {
                     log(
-                        "AccessibilityBroadcastService",
+                        "AccessibilityDeveloperService",
                         "    ~~> AccessibilityButtonCallback"
                     )
 
@@ -42,7 +42,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
                     available: Boolean
                 ) {
                     log(
-                        "AccessibilityBroadcastService",
+                        "AccessibilityDeveloperService",
                         "    ~~> AccessibilityButtonCallback availability [$available]"
                     )
                 }
@@ -61,17 +61,17 @@ class AccessibilityDeveloperService : AccessibilityService() {
     //REQUIRED overrides... not used
     override fun onInterrupt() = Unit
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        log("AccessibilityBroadcastService", "  ~~> onAccessibilityEvent [$event]")
+        log("AccessibilityDeveloperService", "  ~~> onAccessibilityEvent [$event]")
 
         if (event?.eventType == TYPE_WINDOW_CONTENT_CHANGED) {
-            log("AccessibilityBroadcastService", "  ~~> onAccessibilityEvent [$event]")
+            log("AccessibilityDeveloperService", "  ~~> onAccessibilityEvent [$event]")
         }
     }
 
     fun findFocusedViewInfo(): AccessibilityNodeInfo = with(rootInActiveWindow) {
         val viewInfo = this.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY)
         log(
-            "AccessibilityBroadcastService",
+            "AccessibilityDeveloperService",
             "  ~~> View in focus: [${viewInfo.className} : ${viewInfo.viewIdResourceName}]"
         )
         return viewInfo
@@ -79,14 +79,14 @@ class AccessibilityDeveloperService : AccessibilityService() {
 
     override fun onServiceConnected() {
         log(
-            "AccessibilityBroadcastService",
+            "AccessibilityDeveloperService",
             "onServiceConnected"
         )
         registerReceiver(accessibilityActionReceiver, IntentFilter().apply {
             addAction(ACCESSIBILITY_CONTROL_BROADCAST_ACTION)
             priority = 100
             log(
-                "AccessibilityBroadcastService",
+                "AccessibilityDeveloperService",
                 "    ~~> Receiver is registered."
             )
         })
@@ -117,30 +117,13 @@ class AccessibilityDeveloperService : AccessibilityService() {
         return null
     }
 
+    private fun navNodeBFS(node: AccessibilityNodeInfo = rootInActiveWindow) {
+
+    }
 
     fun debugAction() {
-
-        val arguments = Bundle().apply {
-            putInt(ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT,
-                MOVEMENT_GRANULARITY_WORD)
-            putBoolean(ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN, false)
-        }
-        rootInActiveWindow.performAction(
-            ACTION_NEXT_AT_MOVEMENT_GRANULARITY,
-            arguments)
-
-        val node = findFocusedViewInfo()
-        if (node == null)
-            log("DEBUG ACTIONS", "FOCUSED NODE IS NULL")
-        else {
-            val done = node.performAction(ACTION_NEXT_AT_MOVEMENT_GRANULARITY)
-            log("DEBUG ACTIONS", "FOCUSED NODE MOVED: [$done]")
-        }
-
-//        log("DEBUG ACTIONS", "ACTIONS: ${systemActions.size}")
-//        systemActions.forEach {
-//            log("DEBUG ACTIONS", "    ACTION [${it.id}]: ${it.label}")
-//        }
+        findFocusedViewInfo().traversalBefore.performAction(ACTION_CLICK)
+        //log("DEBUG ACTIONS", "ACTIONS: ${}")
     }
 
     private fun createVerticalSwipePath(downToUp: Boolean): Path = Path().apply {
@@ -287,7 +270,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
         require(percent >= 0) { " percent must be an integer greater than 0" }
         val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_ACCESSIBILITY)
         val volume = (max * (percent.toFloat() / 100f)).toInt()
-        log("AccessibilityBroadcastService", "  ~~> Volume set to value [$volume]")
+        log("AccessibilityDeveloperService", "  ~~> Volume set to value [$volume]")
         audioManager.setStreamVolume(
             AudioManager.STREAM_ACCESSIBILITY,
             volume,
@@ -297,7 +280,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
 
     override fun onDestroy() {
         log(
-            "AccessibilityBroadcastService",
+            "AccessibilityDeveloperService",
             "  ~~> onDestroy"
         )
         // Unregister accessibilityActionReceiver when destroyed.
@@ -308,12 +291,12 @@ class AccessibilityDeveloperService : AccessibilityService() {
                 accessibilityButtonCallback
             )
             log(
-                "AccessibilityBroadcastService",
+                "AccessibilityDeveloperService",
                 "    ~~> Receiver is unregistered.\r\n    ~~> AccessibilityButtonCallback is unregistered."
             )
         } catch (e: Exception) {
             log(
-                "AccessibilityBroadcastService",
+                "AccessibilityDeveloperService",
                 "    ~~> Unregister exception: [$e]"
             )
         } finally {

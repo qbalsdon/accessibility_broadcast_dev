@@ -1,4 +1,4 @@
-package com.balsdon.accessibilityBroadcastService
+package com.balsdon.AccessibilityDeveloperService
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

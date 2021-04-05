@@ -1,4 +1,4 @@
-package com.balsdon.accessibilityBroadcastService
+package com.balsdon.AccessibilityDeveloperService
 
 import android.content.BroadcastReceiver
 import android.content.Context
