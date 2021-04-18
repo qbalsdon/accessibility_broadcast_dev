@@ -1,4 +1,4 @@
-package com.balsdon.AccessibilityDeveloperService
+package com.balsdon.accessibilityDeveloperService
 
 import android.content.ComponentName
 import android.content.Context
@@ -12,7 +12,6 @@ import androidx.appcompat.widget.AppCompatImageButton
 import kotlinx.coroutines.*
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.math.roundToInt
 
 const val ACCESSIBILITY_CONTROL_BROADCAST_ACTION = "com.balsdon.talkback.accessibility"
 
@@ -55,12 +54,12 @@ class MainActivity : AppCompatActivity() {
     }, null)
 
     private fun setUpButtons() {
-        navigateLeft.setOnClickListener {
-            broadcastAction(AccessibilityActionReceiver.ACTION_PREV)
+        swipeRight.setOnClickListener {
+            broadcastAction(AccessibilityActionReceiver.ACTION_SWIPE_RIGHT)
         }
 
-        navigateRight.setOnClickListener {
-            broadcastAction(AccessibilityActionReceiver.ACTION_NEXT)
+        swipeLeft.setOnClickListener {
+            broadcastAction(AccessibilityActionReceiver.ACTION_SWIPE_LEFT)
         }
 
         volumeUp.setOnClickListener {
@@ -75,11 +74,6 @@ class MainActivity : AppCompatActivity() {
 
         debugAction.setOnClickListener {
             broadcastAction(AccessibilityActionReceiver.ACTION_DEBUG)
-        }
-
-        //TODO: Fix this!
-        openMenu.setOnClickListener {
-            broadcastAction(AccessibilityActionReceiver.ACTION_MENU)
         }
 
         settingsButton.setOnClickListener {
@@ -102,8 +96,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private val navigateLeft: Button by lazy { findViewById(R.id.navigateLeft) }
-    private val navigateRight: Button by lazy { findViewById(R.id.navigateRight) }
+    private val swipeRight: Button by lazy { findViewById(R.id.swipeRight) }
+    private val swipeLeft: Button by lazy { findViewById(R.id.swipeLeft) }
     private val openMenu: Button by lazy { findViewById(R.id.openMenu) }
     private val debugAction: Button by lazy { findViewById(R.id.debugAction) }
     private val settingsButton: Button by lazy { findViewById(R.id.settingsButton) }

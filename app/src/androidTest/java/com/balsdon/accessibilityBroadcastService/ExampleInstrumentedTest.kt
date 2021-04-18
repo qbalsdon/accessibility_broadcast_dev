@@ -1,4 +1,4 @@
-package com.balsdon.AccessibilityDeveloperService
+package com.balsdon.accessibilityDeveloperService
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry

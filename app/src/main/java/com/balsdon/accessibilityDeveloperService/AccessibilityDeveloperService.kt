@@ -1,4 +1,4 @@
-package com.balsdon.AccessibilityDeveloperService
+package com.balsdon.accessibilityDeveloperService
 
 import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
@@ -9,21 +9,29 @@ import android.content.IntentFilter
 import android.content.res.Resources
 import android.graphics.Path
 import android.media.AudioManager
-import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.View.FOCUS_FORWARD
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityNodeInfo.*
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+
 
 /*
 flagRequestAccessibilityButton: Will show the accessibility button on the bottom right hand side
  */
 class AccessibilityDeveloperService : AccessibilityService() {
+    enum class SelectionType {
+        ELEMENT_ID, ELEMENT_TYPE, ELEMENT_TEXT, ELEMENT_HEADING
+    }
+
     companion object {
         //TODO: [1] Not a huge fan of this...
         //https://developer.android.com/reference/android/content/BroadcastReceiver#peekService(android.content.Context,%20android.content.Intent)
         var instance: AccessibilityDeveloperService? = null
+        val DIRECTION_FORWARD = "DIRECTION_FORWARD"
+        val DIRECTION_BACK = "DIRECTION_BACK"
 
         private val accessibilityButtonCallback =
             object : AccessibilityButtonController.AccessibilityButtonCallback() {
@@ -61,20 +69,18 @@ class AccessibilityDeveloperService : AccessibilityService() {
     //REQUIRED overrides... not used
     override fun onInterrupt() = Unit
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        log("AccessibilityDeveloperService", "  ~~> onAccessibilityEvent [$event]")
-
         if (event?.eventType == TYPE_WINDOW_CONTENT_CHANGED) {
             log("AccessibilityDeveloperService", "  ~~> onAccessibilityEvent [$event]")
         }
     }
 
-    fun findFocusedViewInfo(): AccessibilityNodeInfo = with(rootInActiveWindow) {
-        val viewInfo = this.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY)
+    fun findFocusedViewInfo(): AccessibilityNodeInfoCompat = with(rootInActiveWindow) {
+        val viewInfo = this.findFocus(FOCUS_ACCESSIBILITY)
         log(
             "AccessibilityDeveloperService",
             "  ~~> View in focus: [${viewInfo.className} : ${viewInfo.viewIdResourceName}]"
         )
-        return viewInfo
+        return AccessibilityNodeInfoCompat.wrap(viewInfo)
     }
 
     override fun onServiceConnected() {
@@ -100,30 +106,64 @@ class AccessibilityDeveloperService : AccessibilityService() {
         }
     }
 
-    // My confirmation bias allowed me to mix up "scroll" and "navigate" - this is for things that scroll
-    // on screens, like actual ScrollViews, RecyclerViews etc. This is not a helper for focus
-    private fun findScrollableNode(): AccessibilityNodeInfo? {
-        val deque: ArrayDeque<AccessibilityNodeInfo> = ArrayDeque()
-        deque.add(rootInActiveWindow)
-        while (!deque.isEmpty()) {
-            val node: AccessibilityNodeInfo = deque.removeFirst()
-            if (node.actionList.contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD)) {
-                return node
-            }
-            for (i in 0 until node.childCount) {
-                deque.addLast(node.getChild(i))
+    private fun dfsTree(
+        currentNode: AccessibilityNodeInfo = rootInActiveWindow,
+        depth: Int = 0
+    ): List<Pair<AccessibilityNodeInfo, Int>> {
+        val list = mutableListOf(Pair(currentNode, depth))
+        if (currentNode.childCount > 0) {
+            for (index in 0 until currentNode.childCount) {
+                list.addAll(dfsTree(currentNode.getChild(index), depth + 1))
             }
         }
-        return null
-    }
-
-    private fun navNodeBFS(node: AccessibilityNodeInfo = rootInActiveWindow) {
-
+        return list
     }
 
     fun debugAction() {
-        findFocusedViewInfo().traversalBefore.performAction(ACTION_CLICK)
-        //log("DEBUG ACTIONS", "ACTIONS: ${}")
+        dfsTree().forEach {
+            val compatNode = AccessibilityNodeInfoCompat.wrap(it.first)
+            log("dfsTree", "${it.second}->[${compatNode}]$compatNode")
+        }
+    }
+
+    private fun focusBy(next: Boolean? = null, comparison: (AccessibilityNodeInfo) -> Boolean) {
+        val tree = if (next == false)dfsTree().asReversed() else dfsTree()
+        val currentNode = this.findFocus(FOCUS_ACCESSIBILITY)
+        if (currentNode == null) {
+            val firstNode = tree.firstOrNull { comparison(it.first) }
+            firstNode?.first?.performAction(ACTION_ACCESSIBILITY_FOCUS)
+            return
+        }
+
+        val index = tree.indexOfFirst { it.first == currentNode }
+        if (next == null) {
+            for (currentIndex in tree.indices) {
+                if (comparison(tree[currentIndex].first)) {
+                    tree[currentIndex].first.performAction(ACTION_ACCESSIBILITY_FOCUS)
+                    return
+                }
+            }
+        } else {
+            for (currentIndex in index + 1 until tree.size) {
+                if (comparison(tree[currentIndex].first)) {
+                    tree[currentIndex].first.performAction(ACTION_ACCESSIBILITY_FOCUS)
+                    return
+                }
+            }
+        }
+    }
+
+    fun focus(type: SelectionType, value: String, next: Boolean = true) {
+        when (type) {
+            SelectionType.ELEMENT_ID -> focusBy(null) {
+                it.viewIdResourceName?.toLowerCase()?.contains(value.toLowerCase()) ?: false
+            }
+            SelectionType.ELEMENT_TEXT -> focusBy(null) {
+                it.text?.toString()?.toLowerCase()?.contains(value.toLowerCase()) ?: false
+            }
+            SelectionType.ELEMENT_TYPE -> focusBy(next) { it.className == value }
+            SelectionType.ELEMENT_HEADING -> focusBy(next) { it.isHeading }
+        }
     }
 
     private fun createVerticalSwipePath(downToUp: Boolean): Path = Path().apply {
@@ -136,18 +176,18 @@ class AccessibilityDeveloperService : AccessibilityService() {
         }
     }
 
-    private fun createHorizontalSwipePath(leftToRight: Boolean): Path = Path().apply {
-        if (leftToRight) {
-            moveTo(halfWidth - quarterWidth, halfHeight)
-            lineTo(halfWidth + quarterWidth, halfHeight)
-        } else {
+    private fun createHorizontalSwipePath(rightToLeft: Boolean): Path = Path().apply {
+        if (rightToLeft) {
             moveTo(halfWidth + quarterWidth, halfHeight)
             lineTo(halfWidth - quarterWidth, halfHeight)
+        } else {
+            moveTo(halfWidth - quarterWidth, halfHeight)
+            lineTo(halfWidth + quarterWidth, halfHeight)
         }
     }
 
-    fun swipeHorizontal(leftToRight: Boolean) =
-        performGesture(GestureAction(createHorizontalSwipePath(leftToRight)))
+    fun swipeHorizontal(rightToLeft: Boolean) =
+        performGesture(GestureAction(createHorizontalSwipePath(rightToLeft)))
 
     fun swipeVertical(downToUp: Boolean = true) =
         performGesture(GestureAction(createVerticalSwipePath(downToUp)))
@@ -166,17 +206,17 @@ class AccessibilityDeveloperService : AccessibilityService() {
         val eighth = quarterWidth / 2f
 
         val one = Path().apply {
-                moveTo(stX - eighth, stY)
-                lineTo(stX - eighth, enY)
-            }
+            moveTo(stX - eighth, stY)
+            lineTo(stX - eighth, enY)
+        }
         val two = Path().apply {
-                moveTo(stX, stY)
-                lineTo(stX, enY)
-            }
+            moveTo(stX, stY)
+            lineTo(stX, enY)
+        }
         val three = Path().apply {
-                moveTo(stX + eighth, stY)
-                lineTo(stX + eighth, enY)
-            }
+            moveTo(stX + eighth, stY)
+            lineTo(stX + eighth, enY)
+        }
 
         performGesture(GestureAction(one), GestureAction(two), GestureAction(three))
     }
@@ -239,7 +279,11 @@ class AccessibilityDeveloperService : AccessibilityService() {
     }
 
     private fun performGesture(vararg gestureActions: GestureAction) =
-        dispatchGesture(createGestureFrom(*gestureActions), GestureResultCallback(baseContext), null)
+        dispatchGesture(
+            createGestureFrom(*gestureActions),
+            GestureResultCallback(baseContext),
+            null
+        )
 
 
     class GestureResultCallback(private val ctx: Context) :

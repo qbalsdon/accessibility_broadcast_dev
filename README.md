@@ -87,16 +87,19 @@ if you run `adb shell getevent -l` and `adb shell getevent -lp` you'll find that
 
 You should now be able to run the following adb commands:
 ```
-adb shell am broadcast -a com.balsdon.talkback.accessibility
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "NEXT_ELEMENT"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "PREV_ELEMENT"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "NEXT_ELEMENT_TYPE"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "PREV_ELEMENT_TYPE"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "NEXT_HEADING"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "PREV_HEADING"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "VOLUME_UP"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "VOLUME_DOWN"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "VOLUME_SET" --ei PARAMETER_VOLUME 20
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_SWIPE_LEFT"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_SWIPE_RIGHT"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_SWIPE_UP"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_SWIPE_DOWN"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_FOCUS_ELEMENT"
+                                                                          -e PARAMETER_ID "resourceId"
+                                                                          -e PARAMETER_TEXT "some text"
+                                                                          -e PARAMETER_TYPE "element type" --e DIRECTION "[DIRECTION_FORWARD | DIRECTION_BACK]"
+                                                                          -e PARAMETER_HEADING "[DIRECTION_FORWARD | DIRECTION_BACK]"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_UP"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_DOWN"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_MUTE"
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_SET" --ei PARAMETER_VOLUME 20
 
 //TODO: [BUG]
 adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_MENU"

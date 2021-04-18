@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.balsdon.AccessibilityDeveloperService">
+    package="com.balsdon.accessibilityDeveloperService">
 
     <application
         android:allowBackup="true"
@@ -11,7 +11,7 @@
         android:description="@string/app_description"
         android:theme="@style/Theme.AccessibilityActions">
         <activity
-            android:name="com.balsdon.AccessibilityDeveloperService.MainActivity"
+            android:name="com.balsdon.accessibilityDeveloperService.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.AccessibilityActions.NoActionBar">
             <intent-filter>
@@ -22,7 +22,7 @@
         </activity>
 
         <service
-            android:name=".AccessibilityDeveloperService"
+            android:name="com.balsdon.accessibilityDeveloperService.AccessibilityDeveloperService"
             android:enabled="true"
             android:label="@string/accessibility_service_label"
             android:description="@string/accessibility_service_label"
@@ -37,7 +37,7 @@
 
 
         <receiver
-            android:name="com.balsdon.AccessibilityDeveloperService.AccessibilityActionReceiver"
+            android:name=".AccessibilityActionReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

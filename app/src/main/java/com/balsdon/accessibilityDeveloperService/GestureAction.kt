@@ -1,4 +1,4 @@
-package com.balsdon.AccessibilityDeveloperService
+package com.balsdon.accessibilityDeveloperService
 
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
