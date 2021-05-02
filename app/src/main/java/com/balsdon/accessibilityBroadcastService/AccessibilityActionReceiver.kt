@@ -26,6 +26,8 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
         const val ACTION_WHICH = "ACTION_WHICH"
         const val ACTION_DEBUG = "ACTION_DEBUG"
 
+        const val ACTION_SAY = "ACTION_SAY"
+
         const val PARAMETER_VOLUME = "PARAMETER_VOLUME"
         const val PARAMETER_ID = "PARAMETER_ID"
         const val PARAMETER_TEXT = "PARAMETER_TEXT"
@@ -56,10 +58,29 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
                     ACTION_SWIPE_UP -> swipeVertical(true)
                     ACTION_SWIPE_DOWN -> swipeVertical(false)
 
+                    ACTION_SAY -> {
+                        if (intent.hasExtra(PARAMETER_TEXT)) {
+                            val value = intent.getStringExtra(PARAMETER_TEXT)
+                            log(
+                                "AccessibilityActionReceiver [$ACTION_SAY]",
+                                "    ~~> TYPE: [$PARAMETER_TEXT]: $value"
+                            )
+                            if (value == null) {
+                                showError(context, "Required value: $PARAMETER_TEXT")
+                                return
+                            } else {
+                                announceText(value)
+                            }
+                        }
+                    }
+
                     ACTION_FOCUS_ELEMENT -> {
                         if (intent.hasExtra(PARAMETER_ID)) {
                             val value = intent.getStringExtra(PARAMETER_ID)
-                            log("AccessibilityActionReceiver", "    ~~> TYPE: [$PARAMETER_ID]: $value")
+                            log(
+                                "AccessibilityActionReceiver",
+                                "    ~~> TYPE: [$PARAMETER_ID]: $value"
+                            )
                             if (value == null) {
                                 showError(context, "Required value: $PARAMETER_ID")
                                 return
@@ -67,7 +88,10 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
                             focus(AccessibilityDeveloperService.SelectionType.ELEMENT_ID, value)
                         } else if (intent.hasExtra(PARAMETER_TEXT)) {
                             val value = intent.getStringExtra(PARAMETER_TEXT)
-                            log("AccessibilityActionReceiver", "    ~~> TYPE: [$PARAMETER_TEXT]: $value")
+                            log(
+                                "AccessibilityActionReceiver",
+                                "    ~~> TYPE: [$PARAMETER_TEXT]: $value"
+                            )
                             if (value == null) {
                                 showError(context, "Required value: $PARAMETER_TEXT")
                                 return
@@ -77,7 +101,10 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
                             if (intent.hasExtra(PARAMETER_DIRECTION)) {
                                 val dir = (intent.getStringExtra(PARAMETER_DIRECTION)
                                     ?: DIRECTION_FORWARD).toUpperCase() == DIRECTION_FORWARD
-                                log("AccessibilityActionReceiver", "    ~~> TYPE: [$PARAMETER_TYPE]: $dir")
+                                log(
+                                    "AccessibilityActionReceiver",
+                                    "    ~~> TYPE: [$PARAMETER_TYPE]: $dir"
+                                )
                                 val value = intent.getStringExtra(PARAMETER_TYPE)
                                 if (value == null) {
                                     showError(context, "Required value: $PARAMETER_TYPE")
@@ -97,7 +124,10 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
                         } else if (intent.hasExtra(PARAMETER_HEADING)) {
                             val dir = (intent.getStringExtra(PARAMETER_HEADING)
                                 ?: DIRECTION_FORWARD).toUpperCase() == DIRECTION_FORWARD
-                            log("AccessibilityActionReceiver", "    ~~> TYPE: [$PARAMETER_HEADING]: DIRECTION: $dir")
+                            log(
+                                "AccessibilityActionReceiver",
+                                "    ~~> TYPE: [$PARAMETER_HEADING]: DIRECTION: $dir"
+                            )
                             focus(
                                 AccessibilityDeveloperService.SelectionType.ELEMENT_HEADING,
                                 "",

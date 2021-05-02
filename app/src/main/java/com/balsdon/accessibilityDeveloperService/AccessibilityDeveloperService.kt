@@ -13,6 +13,7 @@ import android.util.DisplayMetrics
 import android.view.View.FOCUS_FORWARD
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityNodeInfo.*
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
@@ -56,6 +57,8 @@ class AccessibilityDeveloperService : AccessibilityService() {
                 }
             }
     }
+
+    private fun Context.AccessibilityManager() = getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
     private val accessibilityActionReceiver = AccessibilityActionReceiver()
     private val audioManager: AudioManager by lazy { getSystemService(AUDIO_SERVICE) as AudioManager }
@@ -125,6 +128,14 @@ class AccessibilityDeveloperService : AccessibilityService() {
             log("dfsTree", "${it.second}->[${compatNode}]$compatNode")
         }
     }
+
+    fun announceText(speakText: String) =
+        AccessibilityManager().apply {
+            sendAccessibilityEvent(AccessibilityEvent.obtain().apply {
+                eventType = AccessibilityEvent.TYPE_ANNOUNCEMENT
+                text.add(speakText)
+            })
+        }
 
     private fun focusBy(next: Boolean? = null, comparison: (AccessibilityNodeInfo) -> Boolean) {
         val tree = if (next == false)dfsTree().asReversed() else dfsTree()

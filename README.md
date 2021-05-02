@@ -87,19 +87,22 @@ if you run `adb shell getevent -l` and `adb shell getevent -lp` you'll find that
 
 You should now be able to run the following adb commands:
 ```
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_SWIPE_LEFT"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_SWIPE_RIGHT"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_SWIPE_UP"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_SWIPE_DOWN"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_FOCUS_ELEMENT"
-                                                                          -e PARAMETER_ID "resourceId"
-                                                                          -e PARAMETER_TEXT "some text"
-                                                                          -e PARAMETER_TYPE "element type" --e DIRECTION "[DIRECTION_FORWARD | DIRECTION_BACK]"
-                                                                          -e PARAMETER_HEADING "[DIRECTION_FORWARD | DIRECTION_BACK]"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_UP"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_DOWN"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_MUTE"
-adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_VOLUME_SET" --ei PARAMETER_VOLUME 20
+adb shell am broadcast -a com.balsdon.talkback.accessibility -e
+    ACTION "ACTION_SWIPE_LEFT"
+    ACTION "ACTION_SWIPE_RIGHT"
+    ACTION "ACTION_SWIPE_UP"
+    ACTION "ACTION_SWIPE_DOWN"
+    ACTION "ACTION_FOCUS_ELEMENT"
+        -e PARAMETER_ID "resourceId"
+        -e PARAMETER_TEXT "some text"
+        -e PARAMETER_TYPE "element type" --e DIRECTION "[DIRECTION_FORWARD | DIRECTION_BACK]"
+        -e PARAMETER_HEADING "[DIRECTION_FORWARD | DIRECTION_BACK]"
+    ACTION "ACTION_VOLUME_UP"
+    ACTION "ACTION_VOLUME_DOWN"
+    ACTION "ACTION_VOLUME_MUTE"
+    ACTION "ACTION_VOLUME_SET" --ei PARAMETER_VOLUME 20
+    ACTION "ACTION_SAY"
+        -e PARAMETER_TEXT "some\ text\ escape\ the\ spaces"
 
 //TODO: [BUG]
 adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_MENU"
