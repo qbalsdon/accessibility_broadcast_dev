@@ -9,11 +9,9 @@ The goal is to make it easier for advanced users, developers and automation engi
 ### Installation
 
 1. Download the repo, run the code. Alternately install the app from the artifacts or the Google Play store (link TBA)
-2. Add the service to your accessibility shortcut. If you are unsure how to do this, just run the app and click the shortcuts button
-3. Turn on accessibility
-4. Press and hold the VOLUME_UP and VOLUME_DOWN keys for 3 seconds
-
-**NOTE** Disabling Talkback will mean that the service will **NOT** be enabled the next time you enable Talkback. You'll have to enable it again. I don't make the rules, I just try to hack my way past them with frivolous scripts and keyboard shortcuts
+2. Turn on accessibility ensuring the "Android Broadcast Developer" Accessibility service is enabled. This can be done
+  - via [scripting][15] or
+  - in Accessibility Settings under services. **NOTE** Disabling TalkBack will mean that the service will **NOT** be enabled the next time you enable TalkBack. You'll have to enable it again.
 
 ### Project structure
 
@@ -131,3 +129,4 @@ The first two are the same, they fire an intent that will tell the screen reader
 [12]: https://developer.android.com/guide/topics/ui/accessibility
 [13]: https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#performAction(int,%20android.os.Bundle)
 [14]: https://issuetracker.google.com/u/2/issues/185631661
+[15]: https://github.com/qbalsdon/accessibility_broadcast_dev#scripting
