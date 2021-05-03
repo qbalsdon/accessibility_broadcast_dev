@@ -15,6 +15,9 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
 
         const val ACTION_SWIPE_UP = "ACTION_SWIPE_UP"
         const val ACTION_SWIPE_DOWN = "ACTION_SWIPE_DOWN"
+        const val ACTION_CLICK = "ACTION_CLICK"
+        const val ACTION_LONG_CLICK = "ACTION_LONG_CLICK"
+        const val ACTION_CURTAIN = "ACTION_CURTAIN"
 
         const val ACTION_FOCUS_ELEMENT = "ACTION_FOCUS_ELEMENT"
 
@@ -57,7 +60,9 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
                     ACTION_SWIPE_RIGHT -> swipeHorizontal(false)
                     ACTION_SWIPE_UP -> swipeVertical(true)
                     ACTION_SWIPE_DOWN -> swipeVertical(false)
-
+                    ACTION_CLICK -> click()
+                    ACTION_LONG_CLICK -> click(true)
+                    ACTION_CURTAIN -> toggleCurtain()
                     ACTION_SAY -> {
                         if (intent.hasExtra(PARAMETER_TEXT)) {
                             val value = intent.getStringExtra(PARAMETER_TEXT)

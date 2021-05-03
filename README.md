@@ -33,55 +33,19 @@ A screen for demonstrating the ability of the system, and provide some helpful s
 
 ### Scripting
 
-I have written a series of scripts on my other repo, [Talos][4], but to hold down the VOLUME_DOWN and VOLUME_UP keys for 3 seconds:
+I have written a series of scripts on my other repo, [Talos][4], but to start the TalkBack and this service:
 
 ```
-  device="/dev/input/event1" # VOLUME KEYS EVENT FILE
-  VOLUME_DOWN=114 #0x0072
-  VOLUME_UP=115   #0x0073
-  BLANK_EVENT="sendevent $device 0 0 0"
-
-  INST_DN="sendevent $device 1 $VOLUME_DOWN 1 && $BLANK_EVENT && sendevent $device 1 $VOLUME_UP 1 && $BLANK_EVENT"
-  INST_UP="sendevent $device 1 $VOLUME_DOWN 0 && $BLANK_EVENT && sendevent $device 1 $VOLUME_UP 0 && $BLANK_EVENT"
-
-  adb -s "$DEVICE" shell "$INST_DN"
-  sleep 3
-  adb -s "$DEVICE" shell "$INST_UP"
+  VALUE_OFF="com.android.talkback/com.google.android.marvin.talkback.TalkBackService"
+  TALKBACK="com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService"
+  ALLYSERVICE="com.balsdon.accessibilityDeveloperService/.AccessibilityDeveloperService"
+  VALUE_ON="$TALKBACK:$ALLYSERVICE"
+  if [ "$ENABLE" = true ]; then
+    adb shell settings put secure enabled_accessibility_services $VALUE_ON
+  else
+    adb shell settings put secure enabled_accessibility_services $VALUE_OFF
+  fi
 ```
-
-I have added it as my accessibility shortcut on my device. You can set it up by going here:
-
-```
-adb shell am start -n com.android.settings/.Settings$AccessibilitySettingsActivity
-```
-
-#### Side note: recording key presses for later scriptable playback
-
-I have found the best way to reverse engineer button presses is to
-1. Identify the device - `/dev/input/device[n]`
-2. Record the usage
-
-```
-adb shell
-    cat /dev/input/event[n] > /mnt/sdcard/some_awesome_action
-    # do your action
-    # ctrl + c
-    # if the file is empty, you have the wrong device
-    exit
-
-adb pull /mnt/sdcard/some_awesome_action
-```
-
-3. Open up a [hex editor][5] and identify the ups and downs
-e.g. this is a VOLUME_UP, KEY_DOWN:
-
-> `00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 0a | 0b | 0c | 0d | 0e | 0f`<br/>
-> `03 | 88 | 61 | 60 | 9e | 5e | 0a | 00 | 01 | 00 | 73 | 00 | 01 | 00 | 00 | 00`<br/>
-> `03 | 88 | 61 | 60 | 9e | 5e | 0a | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00`<br/>
-
-if you run `adb shell getevent -l` and `adb shell getevent -lp` you'll find that `73` is the key (position 0a, specifically, the VOLUME_UP key) and position 0c is the event type (down). Every press has a reset (all 00's).
-
-4. Create a script with the timing involved as well as the key presses. **Timing is not recorded with the device buffer**
 
 ### Usage
 
@@ -97,6 +61,10 @@ adb shell am broadcast -a com.balsdon.talkback.accessibility -e
         -e PARAMETER_TEXT "some text"
         -e PARAMETER_TYPE "element type" --e DIRECTION "[DIRECTION_FORWARD | DIRECTION_BACK]"
         -e PARAMETER_HEADING "[DIRECTION_FORWARD | DIRECTION_BACK]"
+    ACTION "ACTION_SWIPE_DOWN"
+    ACTION "ACTION_CLICK"
+    ACTION "ACTION_LONG_CLICK"
+    ACTION "ACTION_CURTAIN"
     ACTION "ACTION_VOLUME_UP"
     ACTION "ACTION_VOLUME_DOWN"
     ACTION "ACTION_VOLUME_MUTE"
@@ -104,7 +72,7 @@ adb shell am broadcast -a com.balsdon.talkback.accessibility -e
     ACTION "ACTION_SAY"
         -e PARAMETER_TEXT "some\ text\ escape\ the\ spaces"
 
-//TODO: [BUG]
+//TODO: [BUG 01]
 adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_MENU"
 ```
 
@@ -136,12 +104,17 @@ The first two are the same, they fire an intent that will tell the screen reader
 
  - Resolve the disconnect between Gesture and Action
      - Currently the service takes actions for users, but if they are not my expected defaults they may behave differently. For example: Swiping from higher to lower on the screen on some devices might highlight the next heading, while other devices may adjust selection granularity type (i.e. enable you to use NEXT and PREV to navigate headings, paragraphs, links, characters).
-     - Option 1: Convert actions to gestures (easy, but makes me sad. Also, more complex gestures don't work)
-     - Option 2: Find a method of doing actions that doesn't involve gestures. Currently looking at [AccessibilityNodeInfo.performAction][13]
- - [FEATURE] Add a "perform click" action
- - [FEATURE] Add a "focus by id" action - might aid my scripts
+     - :white_check_mark: Option 1: Convert actions to gestures (easy, but makes me sad. Also, more complex gestures don't work)
+     - :x: Option 2: Find a method of doing actions that doesn't involve gestures. Currently looking at [AccessibilityNodeInfo.performAction][13]
+       - I can navigate the tree myself, but I have no way of knowing if I am consistent with TalkBack
+ - :white_check_mark: [FEATURE] Add a "perform click" action
+ - :white_check_mark: Add a "focus by id" action - might aid my scripts
+ - :white_check_mark: Add a "focus by id" action - might aid my scripts
  - [FEATURE] Create a map of the current screen
- - [BUG] 01 Open the accessibility menu. Currently the code is there but something is not happening
+ - [FEATURE] Enable developers to show / hide more of the curtain elements
+ - :bug: [BUG] 01 Open the accessibility menu. Currently the code is there but something is not happening. [Opened an issue][14]
+ - :bug: [BUG] 02 Scroll down to selected element. Currently an accessibility service can only scroll on scrollable nodes.
+  -:bug: [BUG] 03 Do not store an instance in a companion object. It feels wrong, I have not found a better solution yet
 
 
 [1]: https://stackoverflow.com/questions/37460463/how-to-send-key-down-and-key-up-events-separately-on-android-using-adb
@@ -157,3 +130,4 @@ The first two are the same, they fire an intent that will tell the screen reader
 [11]: https://www.android.com/accessibility/
 [12]: https://developer.android.com/guide/topics/ui/accessibility
 [13]: https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#performAction(int,%20android.os.Bundle)
+[14]: https://issuetracker.google.com/u/2/issues/185631661

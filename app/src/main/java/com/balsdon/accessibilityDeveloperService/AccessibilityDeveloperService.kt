@@ -8,14 +8,21 @@ import android.content.Context
 import android.content.IntentFilter
 import android.content.res.Resources
 import android.graphics.Path
+import android.graphics.PixelFormat
 import android.media.AudioManager
 import android.util.DisplayMetrics
-import android.view.View.FOCUS_FORWARD
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityNodeInfo.*
+import android.widget.CheckBox
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.annotation.IdRes
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 
 
@@ -28,7 +35,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
     }
 
     companion object {
-        //TODO: [1] Not a huge fan of this...
+        //TODO: BUG [03] Not a huge fan of this...
         //https://developer.android.com/reference/android/content/BroadcastReceiver#peekService(android.content.Context,%20android.content.Intent)
         var instance: AccessibilityDeveloperService? = null
         val DIRECTION_FORWARD = "DIRECTION_FORWARD"
@@ -58,7 +65,8 @@ class AccessibilityDeveloperService : AccessibilityService() {
             }
     }
 
-    private fun Context.AccessibilityManager() = getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+    private fun Context.AccessibilityManager() =
+        getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
     private val accessibilityActionReceiver = AccessibilityActionReceiver()
     private val audioManager: AudioManager by lazy { getSystemService(AUDIO_SERVICE) as AudioManager }
@@ -69,11 +77,72 @@ class AccessibilityDeveloperService : AccessibilityService() {
     private val quarterWidth: Float by lazy { halfWidth / 2f }
     private val quarterHeight: Float by lazy { halfWidth / 2f }
 
+    private var curtainView: FrameLayout? = null
+
+    private fun <T : View> findElement(@IdRes resId: Int): T =
+        curtainView?.findViewById<T>(resId)
+            ?: throw RuntimeException("Required view not found: CurtainView")
+
+    private val announcementTextView: TextView
+        get() {
+            return findElement(R.id.announcementText)
+        }
+    private val classNameTextView: TextView
+        get() {
+            return findElement(R.id.className)
+        }
+    private val enabledCheckBox: CheckBox
+        get() {
+            return findElement(R.id.enabled)
+        }
+    private val checkedCheckBox: CheckBox
+        get() {
+            return findElement(R.id.checked)
+        }
+    private val scrollableCheckBox: CheckBox
+        get() {
+            return findElement(R.id.scrollable)
+        }
+    private val passwordCheckBox: CheckBox
+        get() {
+            return findElement(R.id.password)
+        }
+    private val headingCheckBox: CheckBox
+        get() {
+            return findElement(R.id.heading)
+        }
+    private val editableCheckBox: CheckBox
+        get() {
+            return findElement(R.id.editable)
+        }
+
     //REQUIRED overrides... not used
     override fun onInterrupt() = Unit
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.eventType == TYPE_WINDOW_CONTENT_CHANGED) {
+        if (event != null) {
             log("AccessibilityDeveloperService", "  ~~> onAccessibilityEvent [$event]")
+        }
+        if (event != null && !event.text.isNullOrEmpty() && curtainView != null) {
+            log("AccessibilityDeveloperService", "  ~~> Announce [$event]")
+            announcementTextView.text = event.text.toString()
+                .replace('[', ' ')
+                .replace(']', ' ')
+                .trim()
+
+            classNameTextView.text = event.className
+            passwordCheckBox.isChecked = event.isPassword
+            enabledCheckBox.isChecked = event.isEnabled
+            checkedCheckBox.isChecked = event.isChecked
+            scrollableCheckBox.isChecked = event.isChecked
+
+            val currentNode = this.findFocus(FOCUS_ACCESSIBILITY)
+            if (currentNode == null) {
+                headingCheckBox.isChecked = false
+                editableCheckBox.isChecked = false
+            } else {
+                headingCheckBox.isChecked = currentNode.isHeading
+                editableCheckBox.isChecked = currentNode.isEditable
+            }
         }
     }
 
@@ -109,6 +178,26 @@ class AccessibilityDeveloperService : AccessibilityService() {
         }
     }
 
+    fun toggleCurtain() {
+        val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+        if (curtainView == null) {
+            curtainView = FrameLayout(this)
+            val lp = WindowManager.LayoutParams()
+            lp.type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+            lp.format = PixelFormat.OPAQUE
+            lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT
+            lp.gravity = Gravity.TOP
+            val inflater = LayoutInflater.from(this)
+            inflater.inflate(R.layout.accessibility_curtain, curtainView)
+            wm.addView(curtainView, lp)
+        } else {
+            wm.removeView(curtainView)
+            curtainView = null
+        }
+    }
+
     private fun dfsTree(
         currentNode: AccessibilityNodeInfo = rootInActiveWindow,
         depth: Int = 0
@@ -138,7 +227,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
         }
 
     private fun focusBy(next: Boolean? = null, comparison: (AccessibilityNodeInfo) -> Boolean) {
-        val tree = if (next == false)dfsTree().asReversed() else dfsTree()
+        val tree = if (next == false) dfsTree().asReversed() else dfsTree()
         val currentNode = this.findFocus(FOCUS_ACCESSIBILITY)
         if (currentNode == null) {
             val firstNode = tree.firstOrNull { comparison(it.first) }
@@ -164,6 +253,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
         }
     }
 
+    //TODO: Bug [02]: Need to scroll to element if it's not in view
     fun focus(type: SelectionType, value: String, next: Boolean = true) {
         when (type) {
             SelectionType.ELEMENT_ID -> focusBy(null) {
@@ -175,6 +265,10 @@ class AccessibilityDeveloperService : AccessibilityService() {
             SelectionType.ELEMENT_TYPE -> focusBy(next) { it.className == value }
             SelectionType.ELEMENT_HEADING -> focusBy(next) { it.isHeading }
         }
+    }
+
+    fun click(long: Boolean = false) {
+        findFocusedViewInfo().performAction(if (long) ACTION_LONG_CLICK else ACTION_CLICK)
     }
 
     private fun createVerticalSwipePath(downToUp: Boolean): Path = Path().apply {
@@ -233,7 +327,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
     }
 
     //https://developer.android.com/guide/topics/ui/accessibility/service#continued-gestures
-    //TODO: Fix this
+    //TODO: BUG [01] Menu not appearing
     fun swipeUpRight() {
         val stX = halfWidth - quarterWidth
         val enX = halfWidth + quarterWidth
@@ -355,7 +449,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
                 "    ~~> Unregister exception: [$e]"
             )
         } finally {
-            instance = null //TODO: [1] Find a better way
+            instance = null
             super.onDestroy()
         }
     }

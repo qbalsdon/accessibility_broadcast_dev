@@ -10,4 +10,11 @@
     <string name="button_action_open_settings">Open settings</string>
     <string name="accessibility_service_description">The service allows developers to use the Android Debug Bridge to control accessibility actions for testing and automation purposes. It provides a BroadcastReceiver to which developers can send instructions for accessibility navigation\n\nWhy not use a keyboard with switch access?\n\nBecause then I can\'t debug apps, and if I do wireless debugging, I drain the battery, and w/less debugging is not exactly consistent.</string>
     <string name="button_action_run_debug_action">Run current debug action</string>
+    <string name="status_enabled">Enabled</string>
+    <string name="status_checked">Checked</string>
+    <string name="status_scrollable">Scrollable</string>
+    <string name="status_password">Password</string>
+    <string name="label_class">Class</string>
+    <string name="status_editable">Editable</string>
+    <string name="status_heading">Heading</string>
 </resources>
