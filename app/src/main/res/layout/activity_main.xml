@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".DemoActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -63,6 +63,7 @@
 
                 <Button
                     android:id="@+id/swipeLeft"
+                    style="@style/hasAccessibilityDimen"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -74,6 +75,7 @@
 
                 <Button
                     android:id="@+id/swipeRight"
+                    style="@style/hasAccessibilityDimen"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -88,11 +90,12 @@
 
                 <ImageButton
                     android:id="@+id/volumeDown"
+                    style="@style/hasAccessibilityDimen"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="3"
                     android:background="@drawable/button_background"
-                    android:contentDescription="Decrease accessibility volume"
+                    android:contentDescription="@string/decrease_accessibility_volume"
                     android:src="@drawable/ic_volume_down" />
 
                 <LinearLayout
@@ -107,8 +110,9 @@
                         android:layout_height="wrap_content"
                         android:contentDescription="@null"
                         android:gravity="center"
-                        android:text="Volume"
-                        android:textSize="8sp" />
+                        android:text="@string/volume"
+                        android:textSize="8sp"
+                        tools:ignore="SmallSp" />
 
                     <TextView
                         android:id="@+id/volumeLabel"
@@ -123,16 +127,18 @@
 
                 <ImageButton
                     android:id="@+id/volumeUp"
+                    style="@style/hasAccessibilityDimen"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="3"
                     android:background="@drawable/button_background"
-                    android:contentDescription="Increase accessibility volume"
+                    android:contentDescription="@string/increase_accessibility_volume"
                     android:src="@drawable/ic_volume_up" />
             </LinearLayout>
 
             <Button
                 android:id="@+id/debugAction"
+                style="@style/hasAccessibilityDimen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -141,6 +147,7 @@
 
             <Button
                 android:id="@+id/openMenu"
+                style="@style/hasAccessibilityDimen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -156,6 +163,7 @@
 
             <Button
                 android:id="@+id/settingsButton"
+                style="@style/hasAccessibilityDimen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

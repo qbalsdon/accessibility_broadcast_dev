@@ -44,4 +44,8 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test:rules:1.4.0-alpha06'
+
+    androidTestImplementation "androidx.test.espresso:espresso-accessibility:$accessibility_check_version"
+    androidTestImplementation "androidx.test.uiautomator:uiautomator:$ui_automator_version"
 }

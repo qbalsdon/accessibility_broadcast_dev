@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="hasAccessibilityDimen">
+        <item name="android:minHeight">@dimen/min_height</item>
+        <item name="android:minWidth">@dimen/min_width</item>
+    </style>
+</resources>

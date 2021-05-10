@@ -11,7 +11,7 @@
         android:description="@string/app_description"
         android:theme="@style/Theme.AccessibilityActions">
         <activity
-            android:name="com.balsdon.accessibilityDeveloperService.MainActivity"
+            android:name="com.balsdon.accessibilityDeveloperService.DemoActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.AccessibilityActions.NoActionBar">
             <intent-filter>

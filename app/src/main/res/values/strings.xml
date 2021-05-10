@@ -17,4 +17,8 @@
     <string name="label_class">Class</string>
     <string name="status_editable">Editable</string>
     <string name="status_heading">Heading</string>
+    <string name="gaad_name">Global Accessibility Awareness Day 2021</string>
+    <string name="decrease_accessibility_volume">Decrease accessibility volume</string>
+    <string name="volume">Volume</string>
+    <string name="increase_accessibility_volume">Increase accessibility volume</string>
 </resources>
