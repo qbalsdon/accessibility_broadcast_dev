@@ -33,7 +33,7 @@
     <style name="titleText" parent="bodyText">
         <item name="android:textSize">28sp</item>
         <item name="android:singleLine">false</item>
-        <item name="maxLines">100</item>
-        <item name="textAllCaps">false</item>
+        <item name="android:maxLines">100</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 </resources>

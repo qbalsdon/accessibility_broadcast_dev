@@ -21,4 +21,6 @@
     <string name="decrease_accessibility_volume">Decrease accessibility volume</string>
     <string name="volume">Volume</string>
     <string name="increase_accessibility_volume">Increase accessibility volume</string>
+
+    <string name="link_test">Open <a href="http://www.google.com">Google.com</a></string>
 </resources>
