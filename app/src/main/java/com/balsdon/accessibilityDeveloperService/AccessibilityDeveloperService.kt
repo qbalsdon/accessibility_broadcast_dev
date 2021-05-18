@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityNodeInfo.*
@@ -119,10 +120,13 @@ class AccessibilityDeveloperService : AccessibilityService() {
     //REQUIRED overrides... not used
     override fun onInterrupt() = Unit
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event != null) {
-            log("AccessibilityDeveloperService", "  ~~> onAccessibilityEvent [$event]")
-        }
-        if (event != null && !event.text.isNullOrEmpty() && curtainView != null) {
+        if (event == null) return
+
+        log("AccessibilityDeveloperService", "  ~~> onAccessibilityEvent [$event]")
+
+        if (event.eventType == TYPE_WINDOW_STATE_CHANGED) return
+
+        if (!event.text.isNullOrEmpty() && curtainView != null) {
             log("AccessibilityDeveloperService", "  ~~> Announce [$event]")
             announcementTextView.text = event.text.toString()
                 .replace('[', ' ')
