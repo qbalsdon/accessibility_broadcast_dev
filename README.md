@@ -1,6 +1,6 @@
 # Accessibility Broadcast Dev
 
-This is a "simple" tool for allowing developers to script some of the more mundane actions when dealing with accessibility.
+Allow developers and automation testers to interact with Android's Accessibility features using the Android Debug Bridge.
 
 ## Introduction
 
