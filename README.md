@@ -105,15 +105,17 @@ The first two are the same, they fire an intent that will tell the screen reader
         - :white_check_mark: Option 1: Convert actions to gestures (easy, but makes me sad. Also, more complex gestures don't work)
         - :x: Option 2: Find a method of doing actions that doesn't involve gestures. Currently looking at [AccessibilityNodeInfo.performAction][13]
            - I can navigate the tree myself, but I have no way of knowing if I am consistent with TalkBack
+ - Need to create a settings activity. See [Accessibility service configuration][16]
+ - Add the current TalkBack and other a11y feature version numbers to the demo screen  
  - :white_check_mark: [FEATURE] Add a "perform click" action
  - :white_check_mark: Add a "focus by id" action - might aid my scripts
  - :white_check_mark: Add a "focus by id" action - might aid my scripts
  - [FEATURE] Create a map of the current screen
  - [FEATURE] Enable developers to show / hide more of the curtain elements
- - :bug: [BUG] 01 Open the accessibility menu. Currently the code is there but something is not happening. [Opened an issue][14]
- - :bug: [BUG] 02 Scroll down to selected element. Currently an accessibility service can only scroll on scrollable nodes.
-  -:bug: [BUG] 03 Do not store an instance in a companion object. It feels wrong, I have not found a better solution yet
-
+ - !FIXED! :bug: [BUG] 01 Open the accessibility menu. Currently the code is there but something is not happening. [Opened an issue][14]
+ - :bug: [BUG] 02 Scroll down to selected element. Currently an accessibility service can only scroll on scrollable nodes. 
+ - !FIXED! :bug: [BUG] 03 Do not store an instance in a companion object. It feels wrong, I have not found a better solution yet
+ - !FIXED! :bug: [BUG] 04 With new version the distances used for programmatic gestures need to be larger.
 
 [1]: https://stackoverflow.com/questions/37460463/how-to-send-key-down-and-key-up-events-separately-on-android-using-adb
 [2]: https://developer.android.com/guide/topics/ui/accessibility/service
@@ -130,3 +132,4 @@ The first two are the same, they fire an intent that will tell the screen reader
 [13]: https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#performAction(int,%20android.os.Bundle)
 [14]: https://issuetracker.google.com/u/2/issues/185631661
 [15]: https://github.com/qbalsdon/accessibility_broadcast_dev#scripting
+[16]: https://developer.android.com/guide/topics/ui/accessibility/service#service-config

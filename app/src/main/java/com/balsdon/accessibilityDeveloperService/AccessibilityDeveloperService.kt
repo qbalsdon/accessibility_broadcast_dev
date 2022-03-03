@@ -6,11 +6,9 @@ import android.accessibilityservice.GestureDescription
 import android.accessibilityservice.GestureDescription.StrokeDescription
 import android.content.Context
 import android.content.IntentFilter
-import android.content.res.Resources
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.media.AudioManager
-import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +23,8 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import com.balsdon.accessibilityBroadcastService.AccessibilityActionReceiver
+import java.lang.ref.WeakReference
 
 
 /*
@@ -38,9 +38,11 @@ class AccessibilityDeveloperService : AccessibilityService() {
     companion object {
         //TODO: BUG [03] Not a huge fan of this...
         //https://developer.android.com/reference/android/content/BroadcastReceiver#peekService(android.content.Context,%20android.content.Intent)
-        var instance: AccessibilityDeveloperService? = null
-        val DIRECTION_FORWARD = "DIRECTION_FORWARD"
-        val DIRECTION_BACK = "DIRECTION_BACK"
+        lateinit var instance: WeakReference<AccessibilityDeveloperService>
+        const val DIRECTION_FORWARD = "DIRECTION_FORWARD"
+        const val DIRECTION_BACK = "DIRECTION_BACK"
+        private const val MAX_POSITION = 1000f
+        private const val MIN_POSITION = 100f
 
         private val accessibilityButtonCallback =
             object : AccessibilityButtonController.AccessibilityButtonCallback() {
@@ -72,12 +74,6 @@ class AccessibilityDeveloperService : AccessibilityService() {
     private val accessibilityActionReceiver = AccessibilityActionReceiver()
     private val audioManager: AudioManager by lazy { getSystemService(AUDIO_SERVICE) as AudioManager }
 
-    private val displayMetrics: DisplayMetrics by lazy { Resources.getSystem().displayMetrics }
-    private val halfWidth: Float by lazy { (displayMetrics.widthPixels) / 2f }
-    private val halfHeight: Float by lazy { (displayMetrics.heightPixels) / 2f }
-    private val quarterWidth: Float by lazy { halfWidth / 2f }
-    private val quarterHeight: Float by lazy { halfWidth / 2f }
-
     private var curtainView: FrameLayout? = null
 
     private fun <T : View> findElement(@IdRes resId: Int): T =
@@ -85,37 +81,21 @@ class AccessibilityDeveloperService : AccessibilityService() {
             ?: throw RuntimeException("Required view not found: CurtainView")
 
     private val announcementTextView: TextView
-        get() {
-            return findElement(R.id.announcementText)
-        }
+        get() = findElement(R.id.announcementText)
     private val classNameTextView: TextView
-        get() {
-            return findElement(R.id.className)
-        }
+        get() = findElement(R.id.className)
     private val enabledCheckBox: CheckBox
-        get() {
-            return findElement(R.id.enabled)
-        }
+        get() = findElement(R.id.enabled)
     private val checkedCheckBox: CheckBox
-        get() {
-            return findElement(R.id.checked)
-        }
+        get() = findElement(R.id.checked)
     private val scrollableCheckBox: CheckBox
-        get() {
-            return findElement(R.id.scrollable)
-        }
+        get() = findElement(R.id.scrollable)
     private val passwordCheckBox: CheckBox
-        get() {
-            return findElement(R.id.password)
-        }
+        get() = findElement(R.id.password)
     private val headingCheckBox: CheckBox
-        get() {
-            return findElement(R.id.heading)
-        }
+        get() = findElement(R.id.heading)
     private val editableCheckBox: CheckBox
-        get() {
-            return findElement(R.id.editable)
-        }
+        get() = findElement(R.id.editable)
 
     //REQUIRED overrides... not used
     override fun onInterrupt() = Unit
@@ -172,7 +152,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
                 "    ~~> Receiver is registered."
             )
         })
-        instance = this
+        instance = WeakReference(this)
 
         //https://developer.android.com/guide/topics/ui/accessibility/service
         if (accessibilityButtonController.isAccessibilityButtonAvailable) {
@@ -216,10 +196,11 @@ class AccessibilityDeveloperService : AccessibilityService() {
     }
 
     fun debugAction() {
-        dfsTree().forEach {
-            val compatNode = AccessibilityNodeInfoCompat.wrap(it.first)
-            log("dfsTree", "${it.second}->[${compatNode}]$compatNode")
-        }
+//        dfsTree().forEach {
+//            val compatNode = AccessibilityNodeInfoCompat.wrap(it.first)
+//            log("dfsTree", "${it.second}->[${compatNode}]$compatNode")
+//        }
+        swipeUpRight()
     }
 
     fun announceText(speakText: String) =
@@ -277,21 +258,21 @@ class AccessibilityDeveloperService : AccessibilityService() {
 
     private fun createVerticalSwipePath(downToUp: Boolean): Path = Path().apply {
         if (downToUp) {
-            moveTo(halfWidth - quarterWidth, halfHeight - quarterHeight)
-            lineTo(halfWidth - quarterWidth, halfHeight + quarterHeight)
+            moveTo(MAX_POSITION, MAX_POSITION)
+            lineTo(MAX_POSITION, MIN_POSITION)
         } else {
-            moveTo(halfWidth - quarterWidth, halfHeight + quarterHeight)
-            lineTo(halfWidth - quarterWidth, halfHeight - quarterHeight)
+            moveTo(MAX_POSITION, MIN_POSITION)
+            lineTo(MAX_POSITION, MAX_POSITION)
         }
     }
 
     private fun createHorizontalSwipePath(rightToLeft: Boolean): Path = Path().apply {
         if (rightToLeft) {
-            moveTo(halfWidth + quarterWidth, halfHeight)
-            lineTo(halfWidth - quarterWidth, halfHeight)
+            moveTo(MAX_POSITION, MAX_POSITION)
+            lineTo(MAX_POSITION, MIN_POSITION)
         } else {
-            moveTo(halfWidth - quarterWidth, halfHeight)
-            lineTo(halfWidth + quarterWidth, halfHeight)
+            moveTo(MAX_POSITION, MIN_POSITION)
+            lineTo(MAX_POSITION, MAX_POSITION)
         }
     }
 
@@ -309,54 +290,34 @@ class AccessibilityDeveloperService : AccessibilityService() {
 
 
     fun threeFingerSwipeUp() {
-        val stX = halfWidth - quarterWidth
-        val stY = halfHeight + quarterHeight
-        val enY = halfHeight - quarterHeight
-        val eighth = quarterWidth / 2f
-
         val one = Path().apply {
-            moveTo(stX - eighth, stY)
-            lineTo(stX - eighth, enY)
+            moveTo(MIN_POSITION, MAX_POSITION)
+            lineTo(MIN_POSITION, MIN_POSITION)
         }
         val two = Path().apply {
-            moveTo(stX, stY)
-            lineTo(stX, enY)
+            moveTo(MIN_POSITION * 2, MAX_POSITION)
+            lineTo(MIN_POSITION * 2, MIN_POSITION)
         }
         val three = Path().apply {
-            moveTo(stX + eighth, stY)
-            lineTo(stX + eighth, enY)
+            moveTo(MIN_POSITION * 3, MAX_POSITION)
+            lineTo(MIN_POSITION * 3, MIN_POSITION)
         }
 
         performGesture(GestureAction(one), GestureAction(two), GestureAction(three))
     }
 
     //https://developer.android.com/guide/topics/ui/accessibility/service#continued-gestures
-    //TODO: BUG [01] Menu not appearing
+    /**
+     * Cannot call this "open a11y menu" because actions can be mapped to different
+     * gestures
+     */
     fun swipeUpRight() {
-        val stX = halfWidth - quarterWidth
-        val enX = halfWidth + quarterWidth
-
-        val stY = halfHeight + quarterHeight
-        val enY = halfHeight - quarterHeight
-
-        val swipeUp = Path().apply {
-            moveTo(stX, stY)
-            lineTo(stX, enY)
+        val swipeUpAndRight = Path().apply {
+            moveTo(MIN_POSITION, MAX_POSITION)
+            lineTo(MIN_POSITION, MIN_POSITION)
+            lineTo(MAX_POSITION, MIN_POSITION)
         }
-        val swipeLeftToRight = Path().apply {
-            moveTo(stX, enY)
-            lineTo(enX, enY)
-        }
-
-        log("path_v", "to x: [$stX], y: [$stY]")
-        log("path_v", "mv x: [$stX], y: [$enY]")
-        log("path_v", "dl x: [${stX - stX}], y: [${enY - stY}]")
-
-        log("path_h", "to x: [$stX], y: [$enY]")
-        log("path_h", "mv x: [$enX], y: [$enY]")
-        log("path_h", "dl x: [${enX - stX}], y: [${enY - enY}]")
-
-        performGesture(GestureAction(swipeUp), GestureAction(swipeLeftToRight, 500))
+        performGesture(GestureAction(swipeUpAndRight))
     }
 
     // https://developer.android.com/guide/topics/ui/accessibility/service#continued-gestures
@@ -453,7 +414,6 @@ class AccessibilityDeveloperService : AccessibilityService() {
                 "    ~~> Unregister exception: [$e]"
             )
         } finally {
-            instance = null
             super.onDestroy()
         }
     }

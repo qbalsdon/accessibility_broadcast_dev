@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
+import com.balsdon.accessibilityBroadcastService.AccessibilityActionReceiver
 import kotlinx.coroutines.*
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -70,6 +71,10 @@ class DemoActivity : AppCompatActivity() {
         volumeDown.setOnClickListener {
             broadcastAction(AccessibilityActionReceiver.ACTION_VOLUME_DOWN)
             delayThen(1000) { updateVolume() }
+        }
+
+        openMenu.setOnClickListener {
+            broadcastAction(AccessibilityActionReceiver.ACTION_SWIPE_UP_RIGHT)
         }
 
         debugAction.setOnClickListener {

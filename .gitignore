@@ -115,3 +115,5 @@ lint/tmp/
 .externalNativeBuild
 .cxx
 local.properties
+
+misc.xml
