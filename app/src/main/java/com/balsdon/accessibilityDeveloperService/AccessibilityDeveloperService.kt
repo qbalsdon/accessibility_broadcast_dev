@@ -264,21 +264,21 @@ class AccessibilityDeveloperService : AccessibilityService() {
 
     private fun createVerticalSwipePath(downToUp: Boolean): Path = Path().apply {
         if (downToUp) {
-            moveTo(MAX_POSITION, MAX_POSITION)
-            lineTo(MAX_POSITION, MIN_POSITION)
+            moveTo(MAX_POSITION / 2, MIN_POSITION)
+            lineTo(MAX_POSITION / 2, MAX_POSITION)
         } else {
-            moveTo(MAX_POSITION, MIN_POSITION)
-            lineTo(MAX_POSITION, MAX_POSITION)
+            moveTo(MAX_POSITION / 2, MAX_POSITION)
+            lineTo(MAX_POSITION / 2, MIN_POSITION)
         }
     }
 
     private fun createHorizontalSwipePath(rightToLeft: Boolean): Path = Path().apply {
         if (rightToLeft) {
-            moveTo(MAX_POSITION, MAX_POSITION)
-            lineTo(MAX_POSITION, MIN_POSITION)
+            moveTo(MAX_POSITION, MAX_POSITION / 2)
+            lineTo(MIN_POSITION, MAX_POSITION / 2)
         } else {
-            moveTo(MAX_POSITION, MIN_POSITION)
-            lineTo(MAX_POSITION, MAX_POSITION)
+            moveTo(MIN_POSITION, MAX_POSITION / 2)
+            lineTo(MAX_POSITION, MAX_POSITION / 2)
         }
     }
 
