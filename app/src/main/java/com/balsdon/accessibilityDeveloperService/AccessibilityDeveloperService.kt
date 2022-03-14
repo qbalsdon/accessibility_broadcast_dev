@@ -3,9 +3,11 @@ package com.balsdon.accessibilityDeveloperService
 import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
-import android.accessibilityservice.GestureDescription.StrokeDescription
+import android.app.ActivityManager
 import android.content.Context
 import android.content.IntentFilter
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.media.AudioManager
@@ -25,6 +27,7 @@ import androidx.annotation.IdRes
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import com.balsdon.accessibilityBroadcastService.AccessibilityActionReceiver
 import java.lang.ref.WeakReference
+import java.util.*
 
 
 /*
@@ -97,6 +100,8 @@ class AccessibilityDeveloperService : AccessibilityService() {
     private val editableCheckBox: CheckBox
         get() = findElement(R.id.editable)
 
+    private val audioStream = AudioManager.STREAM_ACCESSIBILITY
+
     //REQUIRED overrides... not used
     override fun onInterrupt() = Unit
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -164,6 +169,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
 
     fun toggleCurtain() {
         val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+
         if (curtainView == null) {
             curtainView = FrameLayout(this)
             val lp = WindowManager.LayoutParams()
@@ -242,10 +248,10 @@ class AccessibilityDeveloperService : AccessibilityService() {
     fun focus(type: SelectionType, value: String, next: Boolean = true) {
         when (type) {
             SelectionType.ELEMENT_ID -> focusBy(null) {
-                it.viewIdResourceName?.toLowerCase()?.contains(value.toLowerCase()) ?: false
+                it.viewIdResourceName?.lowercase()?.contains(value.lowercase()) ?: false
             }
             SelectionType.ELEMENT_TEXT -> focusBy(null) {
-                it.text?.toString()?.toLowerCase()?.contains(value.toLowerCase()) ?: false
+                it.text?.toString()?.lowercase()?.contains(value.lowercase()) ?: false
             }
             SelectionType.ELEMENT_TYPE -> focusBy(next) { it.className == value }
             SelectionType.ELEMENT_HEADING -> focusBy(next) { it.isHeading }
@@ -282,29 +288,29 @@ class AccessibilityDeveloperService : AccessibilityService() {
     fun swipeVertical(downToUp: Boolean = true) =
         performGesture(GestureAction(createVerticalSwipePath(downToUp)))
 
-    fun swipeUpThenDown() =
-        performGesture(
-            GestureAction(createVerticalSwipePath(true)),
-            GestureAction(createVerticalSwipePath(false), 500)
-        )
+//    fun swipeUpThenDown() =
+//        performGesture(
+//            GestureAction(createVerticalSwipePath(true)),
+//            GestureAction(createVerticalSwipePath(false), 500)
+//        )
 
 
-    fun threeFingerSwipeUp() {
-        val one = Path().apply {
-            moveTo(MIN_POSITION, MAX_POSITION)
-            lineTo(MIN_POSITION, MIN_POSITION)
-        }
-        val two = Path().apply {
-            moveTo(MIN_POSITION * 2, MAX_POSITION)
-            lineTo(MIN_POSITION * 2, MIN_POSITION)
-        }
-        val three = Path().apply {
-            moveTo(MIN_POSITION * 3, MAX_POSITION)
-            lineTo(MIN_POSITION * 3, MIN_POSITION)
-        }
-
-        performGesture(GestureAction(one), GestureAction(two), GestureAction(three))
-    }
+//    fun threeFingerSwipeUp() {
+//        val one = Path().apply {
+//            moveTo(MIN_POSITION, MAX_POSITION)
+//            lineTo(MIN_POSITION, MIN_POSITION)
+//        }
+//        val two = Path().apply {
+//            moveTo(MIN_POSITION * 2, MAX_POSITION)
+//            lineTo(MIN_POSITION * 2, MIN_POSITION)
+//        }
+//        val three = Path().apply {
+//            moveTo(MIN_POSITION * 3, MAX_POSITION)
+//            lineTo(MIN_POSITION * 3, MIN_POSITION)
+//        }
+//
+//        performGesture(GestureAction(one), GestureAction(two), GestureAction(three))
+//    }
 
     //https://developer.android.com/guide/topics/ui/accessibility/service#continued-gestures
     /**
@@ -324,39 +330,39 @@ class AccessibilityDeveloperService : AccessibilityService() {
     // Taken from online documentation. Seems to have left out the dispatch of the gesture.
     // Also does not seem to be an accessibility gesture, but a "regular" gesture (I'm not sure)
     // Simulates an L-shaped drag path: 200 pixels right, then 200 pixels down.
-    private fun doRightThenDownDrag() {
-        val dragRightPath = Path().apply {
-            moveTo(200f, 200f)
-            lineTo(400f, 200f)
-        }
-        val dragRightDuration = 500L // 0.5 second
-
-        // The starting point of the second path must match
-        // the ending point of the first path.
-        val dragDownPath = Path().apply {
-            moveTo(400f, 200f)
-            lineTo(400f, 400f)
-        }
-        val dragDownDuration = 500L
-        val rightThenDownDrag = StrokeDescription(
-            dragRightPath,
-            0L,
-            dragRightDuration,
-            true
-        ).apply {
-            continueStroke(dragDownPath, dragRightDuration, dragDownDuration, false)
-        }
-    }
+//    private fun doRightThenDownDrag() {
+//        val dragRightPath = Path().apply {
+//            moveTo(200f, 200f)
+//            lineTo(400f, 200f)
+//        }
+//        val dragRightDuration = 500L // 0.5 second
+//
+//        // The starting point of the second path must match
+//        // the ending point of the first path.
+//        val dragDownPath = Path().apply {
+//            moveTo(400f, 200f)
+//            lineTo(400f, 400f)
+//        }
+//        val dragDownDuration = 500L
+//        val rightThenDownDrag = StrokeDescription(
+//            dragRightPath,
+//            0L,
+//            dragRightDuration,
+//            true
+//        ).apply {
+//            continueStroke(dragDownPath, dragRightDuration, dragDownDuration, false)
+//        }
+//    }
 
     private fun performGesture(vararg gestureActions: GestureAction) =
         dispatchGesture(
             createGestureFrom(*gestureActions),
-            GestureResultCallback(baseContext),
+            GestureResultCallback(),
             null
         )
 
 
-    class GestureResultCallback(private val ctx: Context) :
+    class GestureResultCallback() :
         AccessibilityService.GestureResultCallback() {
         override fun onCompleted(gestureDescription: GestureDescription?) {
             log("GestureResultCallback", "DONE SWIPE")
@@ -378,18 +384,27 @@ class AccessibilityDeveloperService : AccessibilityService() {
             AudioManager.FLAG_SHOW_UI
         )
     }
-
     fun setVolume(percent: Int) {
         require(percent <= 100) { " percent must be an integer less than 100" }
         require(percent >= 0) { " percent must be an integer greater than 0" }
-        val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_ACCESSIBILITY)
+        val max = audioManager.getStreamMaxVolume(audioStream)
         val volume = (max * (percent.toFloat() / 100f)).toInt()
         log("AccessibilityDeveloperService", "  ~~> Volume set to value [$volume]")
         audioManager.setStreamVolume(
-            AudioManager.STREAM_ACCESSIBILITY,
+            audioStream,
             volume,
             AudioManager.FLAG_SHOW_UI
         )
+    }
+
+    // TODO: Perhaps in the future
+    fun setLanguage(language: String, country: String) {
+        val locale = Locale(language, country)
+        Locale.setDefault(locale)
+        val resources: Resources = resources
+        val config: Configuration = resources.configuration
+        config.setLocale(locale)
+        createConfigurationContext(config)
     }
 
     override fun onDestroy() {

@@ -108,14 +108,19 @@ The first two are the same, they fire an intent that will tell the screen reader
  - Need to create a settings activity. See [Accessibility service configuration][16]
  - Add the current TalkBack and other a11y feature version numbers to the demo screen  
  - :white_check_mark: [FEATURE] Add a "perform click" action
- - :white_check_mark: Add a "focus by id" action - might aid my scripts
- - :white_check_mark: Add a "focus by id" action - might aid my scripts
+ - :white_check_mark: Add a "focus by id" action - might aid [talos][4] scripts
  - [FEATURE] Create a map of the current screen
+     - Show a list of headings
+     - Filter by control type
+     - Show all "Announcement data" (text / content-description) 
  - [FEATURE] Enable developers to show / hide more of the curtain elements
+ - [FEATURE] Show TalkBack version
+ - [FEATURE] Change OS Language (low priority)
  - !FIXED! :bug: [BUG] 01 Open the accessibility menu. Currently the code is there but something is not happening. [Opened an issue][14]
  - :bug: [BUG] 02 Scroll down to selected element. Currently an accessibility service can only scroll on scrollable nodes. 
  - !FIXED! :bug: [BUG] 03 Do not store an instance in a companion object. It feels wrong, I have not found a better solution yet
  - !FIXED! :bug: [BUG] 04 With new version the distances used for programmatic gestures need to be larger.
+ - :bug: [BUG] [05] When the curtain is drawn the data is blank
 
 [1]: https://stackoverflow.com/questions/37460463/how-to-send-key-down-and-key-up-events-separately-on-android-using-adb
 [2]: https://developer.android.com/guide/topics/ui/accessibility/service

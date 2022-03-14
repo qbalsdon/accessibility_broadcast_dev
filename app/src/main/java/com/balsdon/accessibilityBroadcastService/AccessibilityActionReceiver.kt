@@ -35,12 +35,19 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
 
         const val ACTION_SAY = "ACTION_SAY"
 
+        const val ACTION_SET_LANGUAGE = "ACTION_SET_LANGUAGE"
+
         const val PARAMETER_VOLUME = "PARAMETER_VOLUME"
         const val PARAMETER_ID = "PARAMETER_ID"
         const val PARAMETER_TEXT = "PARAMETER_TEXT"
         const val PARAMETER_HEADING = "PARAMETER_HEADING"
         const val PARAMETER_DIRECTION = "PARAMETER_DIRECTION"
+        const val PARAMETER_COUNTRY = "PARAMETER_COUNTRY"
+        const val PARAMETER_LANGUAGE = "PARAMETER_LANGUAGE"
         const val PARAMETER_TYPE = "PARAMETER_TYPE"
+
+        private const val DEFAULT_COUNTRY = "GB"
+        private const val DEFAULT_LANGUAGE = "EN"
     }
 
     private fun showError(context: Context, message: String) {
@@ -110,7 +117,7 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
                         } else if (intent.hasExtra(PARAMETER_TYPE)) {
                             if (intent.hasExtra(PARAMETER_DIRECTION)) {
                                 val dir = (intent.getStringExtra(PARAMETER_DIRECTION)
-                                    ?: DIRECTION_FORWARD).toUpperCase() == DIRECTION_FORWARD
+                                    ?: DIRECTION_FORWARD).uppercase() == DIRECTION_FORWARD
                                 log(
                                     "AccessibilityActionReceiver",
                                     "    ~~> TYPE: [$PARAMETER_TYPE]: $dir"
@@ -133,7 +140,7 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
                             }
                         } else if (intent.hasExtra(PARAMETER_HEADING)) {
                             val dir = (intent.getStringExtra(PARAMETER_HEADING)
-                                ?: DIRECTION_FORWARD).toUpperCase() == DIRECTION_FORWARD
+                                ?: DIRECTION_FORWARD).uppercase() == DIRECTION_FORWARD
                             log(
                                 "AccessibilityActionReceiver",
                                 "    ~~> TYPE: [$PARAMETER_HEADING]: DIRECTION: $dir"
@@ -156,6 +163,11 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
                     ACTION_VOLUME_SET -> setVolume(intent.getIntExtra(PARAMETER_VOLUME, 10))
                     ACTION_VOLUME_MUTE -> setVolume(0)
                     ACTION_WHICH -> findFocusedViewInfo()
+                    ACTION_SET_LANGUAGE -> {
+                        val country = intent.getStringExtra(PARAMETER_COUNTRY) ?: DEFAULT_COUNTRY
+                        val language = intent.getStringExtra(PARAMETER_LANGUAGE) ?: DEFAULT_LANGUAGE
+                        setLanguage(language, country)
+                    }
 
                     else -> showError(context, it)
                 }
