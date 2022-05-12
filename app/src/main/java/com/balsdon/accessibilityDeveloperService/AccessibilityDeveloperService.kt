@@ -3,7 +3,6 @@ package com.balsdon.accessibilityDeveloperService
 import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
-import android.app.ActivityManager
 import android.content.Context
 import android.content.IntentFilter
 import android.content.res.Configuration
@@ -101,9 +100,11 @@ class AccessibilityDeveloperService : AccessibilityService() {
         get() = findElement(R.id.editable)
 
     private val audioStream = AudioManager.STREAM_ACCESSIBILITY
+    private var previousEvent: AccessibilityEvent? = null
 
     //REQUIRED overrides... not used
     override fun onInterrupt() = Unit
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
@@ -111,27 +112,33 @@ class AccessibilityDeveloperService : AccessibilityService() {
 
         if (event.eventType == TYPE_WINDOW_STATE_CHANGED) return
 
+        previousEvent = event
+
         if (!event.text.isNullOrEmpty() && curtainView != null) {
             log("AccessibilityDeveloperService", "  ~~> Announce [$event]")
-            announcementTextView.text = event.text.toString()
-                .replace('[', ' ')
-                .replace(']', ' ')
-                .trim()
+            showEvent(event)
+        }
+    }
 
-            classNameTextView.text = event.className
-            passwordCheckBox.isChecked = event.isPassword
-            enabledCheckBox.isChecked = event.isEnabled
-            checkedCheckBox.isChecked = event.isChecked
-            scrollableCheckBox.isChecked = event.isChecked
+    private fun showEvent(event: AccessibilityEvent) {
+        announcementTextView.text = event.text.toString()
+            .replace('[', ' ')
+            .replace(']', ' ')
+            .trim()
 
-            val currentNode = this.findFocus(FOCUS_ACCESSIBILITY)
-            if (currentNode == null) {
-                headingCheckBox.isChecked = false
-                editableCheckBox.isChecked = false
-            } else {
-                headingCheckBox.isChecked = currentNode.isHeading
-                editableCheckBox.isChecked = currentNode.isEditable
-            }
+        classNameTextView.text = event.className
+        passwordCheckBox.isChecked = event.isPassword
+        enabledCheckBox.isChecked = event.isEnabled
+        checkedCheckBox.isChecked = event.isChecked
+        scrollableCheckBox.isChecked = event.isChecked
+
+        val currentNode = this.findFocus(FOCUS_ACCESSIBILITY)
+        if (currentNode == null) {
+            headingCheckBox.isChecked = false
+            editableCheckBox.isChecked = false
+        } else {
+            headingCheckBox.isChecked = currentNode.isHeading
+            editableCheckBox.isChecked = currentNode.isEditable
         }
     }
 
@@ -182,6 +189,9 @@ class AccessibilityDeveloperService : AccessibilityService() {
             val inflater = LayoutInflater.from(this)
             inflater.inflate(R.layout.accessibility_curtain, curtainView)
             wm.addView(curtainView, lp)
+            if (previousEvent != null) {
+                showEvent(previousEvent!!)
+            }
         } else {
             wm.removeView(curtainView)
             curtainView = null
