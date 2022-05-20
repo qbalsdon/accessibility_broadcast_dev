@@ -102,11 +102,10 @@ The first two are the same, they fire an intent that will tell the screen reader
 
  - Resolve the disconnect between Gesture and Action
      - Currently the service takes actions for users, but if they are not my expected defaults they may behave differently. For example: Swiping from higher to lower on the screen on some devices might highlight the next heading, while other devices may adjust selection granularity type (i.e. enable you to use NEXT and PREV to navigate headings, paragraphs, links, characters).
-        - :white_check_mark: Option 1: Convert actions to gestures (easy, but makes me sad. Also, more complex gestures don't work)
+        - :white_check_mark: Option 1: Convert actions to gestures (easy, but makes me sad. ~Also, more complex gestures don't work~)
         - :x: Option 2: Find a method of doing actions that doesn't involve gestures. Currently looking at [AccessibilityNodeInfo.performAction][13]
            - I can navigate the tree myself, but I have no way of knowing if I am consistent with TalkBack
  - Need to create a settings activity. See [Accessibility service configuration][16]
- - Add the current TalkBack and other a11y feature version numbers to the demo screen  
  - :white_check_mark: [FEATURE] Add a "perform click" action
  - :white_check_mark: Add a "focus by id" action - might aid [talos][4] scripts
  - [FEATURE] Create a map of the current screen
@@ -121,6 +120,15 @@ The first two are the same, they fire an intent that will tell the screen reader
  - !FIXED! :bug: [BUG] 03 Do not store an instance in a companion object. It feels wrong, I have not found a better solution yet
  - !FIXED! :bug: [BUG] 04 With new version the distances used for programmatic gestures need to be larger.
  - :bug: [BUG] [05] When the curtain is drawn the data is blank
+ - [FEATURE] See what is readable from the API's of Talkback
+   - Get the gesture mappings
+   - Get the node structure: next, previous
+   - Read the current granularity
+ - [FEATURE] Improvements to the curtain
+   - Initial loading is empty
+   - "Hole mode" - only show certain elements (Headings, links, labels, etc)
+ - [FEATURE] Improve the look of the test activity. It's hideous and inaccessible
+   - Add UI tests to the main screen
 
 [1]: https://stackoverflow.com/questions/37460463/how-to-send-key-down-and-key-up-events-separately-on-android-using-adb
 [2]: https://developer.android.com/guide/topics/ui/accessibility/service

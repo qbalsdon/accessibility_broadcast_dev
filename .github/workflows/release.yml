@@ -1,66 +1,66 @@
-name: Release
-on:
-  push:
-    branches:
-      - release/*
-
-jobs:
-  test:
-    name: Run Test Suite [Unit, Instrumented]
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set Up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-
-      - name: Execute Unit Tests [./gradlew testDebugUnitTest --stacktrace]
-        run: ./gradlew testReleaseUnitTest --stacktrace
-
-      - name: Execute Instrumentation Tests [./gradlew connectedCheck --stacktrace (api 29, x86)]
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          target: default
-          arch: 'x86'
-          profile: Nexus 6
-          script: ./gradlew connectedCheck --stacktrace
-
-  generateArtifacts:
-    name: Generate Release APK artifacts
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v1
-      - name: set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: Build Release Bundle [./gradlew bundleRelease --stacktrace]
-        run: ./gradlew bundleRelease --stacktrace
-
-      - name: Upload Release Bundle
-        uses: actions/upload-artifact@v1
-        with:
-          name: app-unsigned-${{ github.run_number }}.aab
-          path: app/build/outputs/bundle/release/app-release.aab
-
-      - name: Sign app bundle
-        uses: r0adkll/sign-android-release@v1
-        id: sign_app
-        with:
-          releaseDirectory: app/build/outputs/bundle/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-        env:
-          BUILD_TOOLS_VERSION: "29.0.3" # override default build-tools version (29.0.3) -- optional
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: app-signed-${{ github.run_number }}.aab
-          path: ${{steps.sign_app.outputs.signedReleaseFile}}
+#name: Release
+#on:
+#  push:
+#    branches:
+#      - release/*
+#
+#jobs:
+#  test:
+#    name: Run Test Suite [Unit, Instrumented]
+#    runs-on: macos-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#
+#      - name: Set Up JDK 1.8
+#        uses: actions/setup-java@v1
+#        with:
+#          java-version: 1.8
+#
+#      - name: Execute Unit Tests [./gradlew testDebugUnitTest --stacktrace]
+#        run: ./gradlew testReleaseUnitTest --stacktrace
+#
+#      - name: Execute Instrumentation Tests [./gradlew connectedCheck --stacktrace (api 29, x86)]
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: 29
+#          target: default
+#          arch: 'x86'
+#          profile: Nexus 6
+#          script: ./gradlew connectedCheck --stacktrace
+#
+#  generateArtifacts:
+#    name: Generate Release APK artifacts
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v1
+#      - name: set up JDK 1.8
+#        uses: actions/setup-java@v1
+#        with:
+#          java-version: 1.8
+#      - name: Build Release Bundle [./gradlew bundleRelease --stacktrace]
+#        run: ./gradlew bundleRelease --stacktrace
+#
+#      - name: Upload Release Bundle
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: app-unsigned-${{ github.run_number }}.aab
+#          path: app/build/outputs/bundle/release/app-release.aab
+#
+#      - name: Sign app bundle
+#        uses: r0adkll/sign-android-release@v1
+#        id: sign_app
+#        with:
+#          releaseDirectory: app/build/outputs/bundle/release
+#          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+#          alias: ${{ secrets.ALIAS }}
+#          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+#          keyPassword: ${{ secrets.KEY_PASSWORD }}
+#        env:
+#          BUILD_TOOLS_VERSION: "29.0.3" # override default build-tools version (29.0.3) -- optional
+#
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: app-signed-${{ github.run_number }}.aab
+#          path: ${{steps.sign_app.outputs.signedReleaseFile}}
