@@ -70,15 +70,12 @@ adb shell am broadcast -a com.balsdon.talkback.accessibility -e
     ACTION "ACTION_SAY"
         -e PARAMETER_TEXT "some\ text\ escape\ the\ spaces"
 
-//TODO: [BUG 01]
 adb shell am broadcast -a com.balsdon.talkback.accessibility -e ACTION "ACTION_MENU"
 ```
 
-adb shell am broadcast -a com.google.android.accessibility.talkback.controller.GestureActionPerformedAction -e com.google.android.accessibility.talkback.controller.ShortcutGestureExtraAction
-
 The first two are the same, they fire an intent that will tell the screen reader to focus on the next available element. Sending `-e ACTION "[PARAMETER]"`
   - `ACTION_PREV` will inform the service to focus on the previous element
-  - `ACTION_MENU` will open the accessibility menu so users can focus on headings, paragraphs, etc. This is currently not working
+  - `ACTION_MENU` will open the accessibility menu so users can focus on headings, paragraphs, etc.
   - `ACTION_HEADING_[NEXT | PREV]` focuses on the next / previous heading element
   - `ACTION_VOLUME_[UP | DOWN]` allows developers to incrementally the accessibility volume
   - `ACTION_VOLUME_SET` allows developers to directly set the accessibility volume.
