@@ -5,8 +5,6 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.content.Context
 import android.content.IntentFilter
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.media.AudioManager
@@ -24,10 +22,11 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import com.balsdon.accessibilityBroadcastService.ACCESSIBILITY_CONTROL_BROADCAST_ACTION
 import com.balsdon.accessibilityBroadcastService.AccessibilityActionReceiver
+import com.balsdon.accessibilityBroadcastService.log
+import com.balsdon.accessibilityDeveloperService.data.EventData
 import java.lang.ref.WeakReference
-import java.util.*
-
 
 /*
 flagRequestAccessibilityButton: Will show the accessibility button on the bottom right hand side
@@ -38,8 +37,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
     }
 
     companion object {
-        //TODO: BUG [03] Not a huge fan of this...
-        //https://developer.android.com/reference/android/content/BroadcastReceiver#peekService(android.content.Context,%20android.content.Intent)
+        // https://developer.android.com/reference/android/content/BroadcastReceiver#peekService(android.content.Context,%20android.content.Intent)
         lateinit var instance: WeakReference<AccessibilityDeveloperService>
         const val DIRECTION_FORWARD = "DIRECTION_FORWARD"
         const val DIRECTION_BACK = "DIRECTION_BACK"
@@ -53,7 +51,6 @@ class AccessibilityDeveloperService : AccessibilityService() {
                         "AccessibilityDeveloperService",
                         "    ~~> AccessibilityButtonCallback"
                     )
-
                     // Add custom logic for a service to react to the
                     // accessibility button being pressed.
                 }
@@ -79,7 +76,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
     private var curtainView: FrameLayout? = null
 
     private fun <T : View> findElement(@IdRes resId: Int): T =
-        curtainView?.findViewById<T>(resId)
+        curtainView?.findViewById(resId)
             ?: throw RuntimeException("Required view not found: CurtainView")
 
     private val announcementTextView: TextView
@@ -100,9 +97,9 @@ class AccessibilityDeveloperService : AccessibilityService() {
         get() = findElement(R.id.editable)
 
     private val audioStream = AudioManager.STREAM_ACCESSIBILITY
-    private var previousEvent: AccessibilityEvent? = null
+    private var previousEvent = EventData()
 
-    //REQUIRED overrides... not used
+    // REQUIRED overrides... not used
     override fun onInterrupt() = Unit
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -112,16 +109,16 @@ class AccessibilityDeveloperService : AccessibilityService() {
 
         if (event.eventType == TYPE_WINDOW_STATE_CHANGED) return
 
-        previousEvent = event
-
-        if (!event.text.isNullOrEmpty() && curtainView != null) {
+        if (!event.text.isNullOrEmpty()) {
             log("AccessibilityDeveloperService", "  ~~> Announce [$event]")
-            showEvent(event)
+            previousEvent = EventData.from(event)
+            showEvent(previousEvent)
         }
     }
 
-    private fun showEvent(event: AccessibilityEvent) {
-        announcementTextView.text = event.text.toString()
+    private fun showEvent(event: EventData) {
+        if (curtainView == null) return
+        announcementTextView.text = event.eventText
             .replace('[', ' ')
             .replace(']', ' ')
             .trim()
@@ -132,13 +129,30 @@ class AccessibilityDeveloperService : AccessibilityService() {
         checkedCheckBox.isChecked = event.isChecked
         scrollableCheckBox.isChecked = event.isChecked
 
-        val currentNode = this.findFocus(FOCUS_ACCESSIBILITY)
-        if (currentNode == null) {
-            headingCheckBox.isChecked = false
-            editableCheckBox.isChecked = false
+        headingCheckBox.isChecked = event.isHeading
+        editableCheckBox.isChecked = event.isEditable
+    }
+
+    fun toggleCurtain() {
+        val windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+
+        if (curtainView == null) {
+            curtainView = FrameLayout(this)
+            val layoutParams = WindowManager.LayoutParams().apply {
+                type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+                format = PixelFormat.OPAQUE
+                flags = flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                width = WindowManager.LayoutParams.MATCH_PARENT
+                height = WindowManager.LayoutParams.MATCH_PARENT
+                gravity = Gravity.TOP
+            }
+            val inflater = LayoutInflater.from(this)
+            inflater.inflate(R.layout.accessibility_curtain, curtainView)
+            windowManager.addView(curtainView, layoutParams)
+            showEvent(previousEvent)
         } else {
-            headingCheckBox.isChecked = currentNode.isHeading
-            editableCheckBox.isChecked = currentNode.isEditable
+            windowManager.removeView(curtainView)
+            curtainView = null
         }
     }
 
@@ -174,30 +188,6 @@ class AccessibilityDeveloperService : AccessibilityService() {
         }
     }
 
-    fun toggleCurtain() {
-        val wm = getSystemService(WINDOW_SERVICE) as WindowManager
-
-        if (curtainView == null) {
-            curtainView = FrameLayout(this)
-            val lp = WindowManager.LayoutParams()
-            lp.type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-            lp.format = PixelFormat.OPAQUE
-            lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-            lp.width = WindowManager.LayoutParams.MATCH_PARENT
-            lp.height = WindowManager.LayoutParams.MATCH_PARENT
-            lp.gravity = Gravity.TOP
-            val inflater = LayoutInflater.from(this)
-            inflater.inflate(R.layout.accessibility_curtain, curtainView)
-            wm.addView(curtainView, lp)
-            if (previousEvent != null) {
-                showEvent(previousEvent!!)
-            }
-        } else {
-            wm.removeView(curtainView)
-            curtainView = null
-        }
-    }
-
     private fun dfsTree(
         currentNode: AccessibilityNodeInfo = rootInActiveWindow,
         depth: Int = 0
@@ -209,14 +199,6 @@ class AccessibilityDeveloperService : AccessibilityService() {
             }
         }
         return list
-    }
-
-    fun debugAction() {
-//        dfsTree().forEach {
-//            val compatNode = AccessibilityNodeInfoCompat.wrap(it.first)
-//            log("dfsTree", "${it.second}->[${compatNode}]$compatNode")
-//        }
-        swipeUpRight()
     }
 
     fun announceText(speakText: String) =
@@ -298,35 +280,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
     fun swipeVertical(downToUp: Boolean = true) =
         performGesture(GestureAction(createVerticalSwipePath(downToUp)))
 
-//    fun swipeUpThenDown() =
-//        performGesture(
-//            GestureAction(createVerticalSwipePath(true)),
-//            GestureAction(createVerticalSwipePath(false), 500)
-//        )
-
-
-//    fun threeFingerSwipeUp() {
-//        val one = Path().apply {
-//            moveTo(MIN_POSITION, MAX_POSITION)
-//            lineTo(MIN_POSITION, MIN_POSITION)
-//        }
-//        val two = Path().apply {
-//            moveTo(MIN_POSITION * 2, MAX_POSITION)
-//            lineTo(MIN_POSITION * 2, MIN_POSITION)
-//        }
-//        val three = Path().apply {
-//            moveTo(MIN_POSITION * 3, MAX_POSITION)
-//            lineTo(MIN_POSITION * 3, MIN_POSITION)
-//        }
-//
-//        performGesture(GestureAction(one), GestureAction(two), GestureAction(three))
-//    }
-
     //https://developer.android.com/guide/topics/ui/accessibility/service#continued-gestures
-    /**
-     * Cannot call this "open a11y menu" because actions can be mapped to different
-     * gestures
-     */
     fun swipeUpRight() {
         val swipeUpAndRight = Path().apply {
             moveTo(MIN_POSITION, MAX_POSITION)
@@ -336,34 +290,6 @@ class AccessibilityDeveloperService : AccessibilityService() {
         performGesture(GestureAction(swipeUpAndRight))
     }
 
-    // https://developer.android.com/guide/topics/ui/accessibility/service#continued-gestures
-    // Taken from online documentation. Seems to have left out the dispatch of the gesture.
-    // Also does not seem to be an accessibility gesture, but a "regular" gesture (I'm not sure)
-    // Simulates an L-shaped drag path: 200 pixels right, then 200 pixels down.
-//    private fun doRightThenDownDrag() {
-//        val dragRightPath = Path().apply {
-//            moveTo(200f, 200f)
-//            lineTo(400f, 200f)
-//        }
-//        val dragRightDuration = 500L // 0.5 second
-//
-//        // The starting point of the second path must match
-//        // the ending point of the first path.
-//        val dragDownPath = Path().apply {
-//            moveTo(400f, 200f)
-//            lineTo(400f, 400f)
-//        }
-//        val dragDownDuration = 500L
-//        val rightThenDownDrag = StrokeDescription(
-//            dragRightPath,
-//            0L,
-//            dragRightDuration,
-//            true
-//        ).apply {
-//            continueStroke(dragDownPath, dragRightDuration, dragDownDuration, false)
-//        }
-//    }
-
     private fun performGesture(vararg gestureActions: GestureAction) =
         dispatchGesture(
             createGestureFrom(*gestureActions),
@@ -372,7 +298,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
         )
 
 
-    class GestureResultCallback() :
+    class GestureResultCallback :
         AccessibilityService.GestureResultCallback() {
         override fun onCompleted(gestureDescription: GestureDescription?) {
             log("GestureResultCallback", "DONE SWIPE")
@@ -386,7 +312,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
     }
 
     // default to lower in case you forget
-    // because everyone LOVES accessibility over VC and in the [home] office
+// because everyone LOVES accessibility over VC and in the [home] office
     fun adjustVolume(raise: Boolean = false) {
         audioManager.adjustStreamVolume(
             AudioManager.STREAM_ACCESSIBILITY,
@@ -394,6 +320,7 @@ class AccessibilityDeveloperService : AccessibilityService() {
             AudioManager.FLAG_SHOW_UI
         )
     }
+
     fun setVolume(percent: Int) {
         require(percent <= 100) { " percent must be an integer less than 100" }
         require(percent >= 0) { " percent must be an integer greater than 0" }
@@ -405,16 +332,6 @@ class AccessibilityDeveloperService : AccessibilityService() {
             volume,
             AudioManager.FLAG_SHOW_UI
         )
-    }
-
-    // TODO: Perhaps in the future
-    fun setLanguage(language: String, country: String) {
-        val locale = Locale(language, country)
-        Locale.setDefault(locale)
-        val resources: Resources = resources
-        val config: Configuration = resources.configuration
-        config.setLocale(locale)
-        createConfigurationContext(config)
     }
 
     override fun onDestroy() {

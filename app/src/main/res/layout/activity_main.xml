@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".DemoActivity">
+    tools:context="com.balsdon.accessibilityBroadcastService.DemoActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -29,42 +29,46 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="5dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/first_text"
+                style="@style/heading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:gravity="center"
-                android:text="First label" />
-
-            <TextView
-                android:id="@+id/second_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:gravity="center"
-                android:text="Second label" />
-
-            <TextView
-                android:id="@+id/third_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:gravity="center"
-                android:text="@string/link_test" />
-
-            <EditText
-                android:id="@+id/editor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Type your name"/>
-
+                android:text="@string/enabled_accessibility_services"
+                />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
+                android:orientation="vertical">
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/talkbackSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:text="@string/talkback_label"/>
+                <!-- TODO: Check if installed! -->
+<!--                <androidx.appcompat.widget.SwitchCompat-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@string/accessibility_scanner_label"/>-->
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/abdSwitch"
+                    android:clickable="false"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/broadcast_dev_label"/>
+            </LinearLayout>
+            <TextView
+                style="@style/heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/heading_basic_navigation"
+                />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <Button
@@ -73,11 +77,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/prev" />
-
-                <View
-                    android:layout_width="10dp"
-                    android:layout_height="0dp" />
+                    android:layout_marginEnd="5dp"
+                    android:contentDescription="@string/action_prev_content_description"
+                    android:text="@string/action_prev" />
 
                 <Button
                     android:id="@+id/swipeRight"
@@ -85,9 +87,30 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/next" />
+                    android:layout_marginStart="5dp"
+                    android:contentDescription="@string/action_next_content_description"
+                    android:text="@string/action_next" />
             </LinearLayout>
-
+            <Button
+                android:id="@+id/openMenu"
+                style="@style/hasAccessibilityDimen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/button_action_open_accessibility_menu" />
+            <Button
+                android:id="@+id/settingsButton"
+                style="@style/hasAccessibilityDimen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/button_action_open_settings" />
+            <TextView
+                style="@style/heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/heading_volume_controls"
+                />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -99,136 +122,69 @@
                     style="@style/hasAccessibilityDimen"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="3"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="5dp"
                     android:background="@drawable/button_background"
                     android:contentDescription="@string/decrease_accessibility_volume"
                     android:src="@drawable/ic_volume_down" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:importantForAccessibility="yes"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@null"
-                        android:gravity="center"
-                        android:text="@string/volume"
-                        android:textSize="8sp"
-                        tools:ignore="SmallSp" />
-
-                    <TextView
-                        android:id="@+id/volumeLabel"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@null"
-                        android:gravity="center"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        tools:text="100" />
-                </LinearLayout>
 
                 <ImageButton
                     android:id="@+id/volumeUp"
                     style="@style/hasAccessibilityDimen"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="3"
+                    android:layout_weight="1"
+                    android:layout_marginStart="5dp"
                     android:background="@drawable/button_background"
                     android:contentDescription="@string/increase_accessibility_volume"
                     android:src="@drawable/ic_volume_up" />
             </LinearLayout>
-
+            <TextView
+                style="@style/heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/heading_custom_features"
+                />
             <Button
-                android:id="@+id/debugAction"
+                android:id="@+id/a11ySettings"
                 style="@style/hasAccessibilityDimen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginVertical="5dp"
-                android:text="@string/button_action_run_debug_action" />
-
+                android:text="@string/button_action_open_accessibility_services" />
             <Button
-                android:id="@+id/openMenu"
+                android:id="@+id/devCurtain"
                 style="@style/hasAccessibilityDimen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginVertical="5dp"
-                android:text="@string/button_action_open_accessibility_menu" />
-
+                android:text="@string/button_action_show_dev_curtain" />
             <TextView
-                android:id="@+id/details"
+                style="@style/heading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:text="@string/enable_instructions" />
-
-            <Button
-                android:id="@+id/settingsButton"
-                style="@style/hasAccessibilityDimen"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginVertical="5dp"
-                android:text="@string/button_action_open_settings" />
-
-            <TextView
-                android:id="@+id/heading1"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:gravity="center"
-                android:accessibilityHeading="true"
-                android:text="Heading 1" />
-
+                android:text="@string/heading_useful_links"
+                />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="5dp"
-                android:gravity="center"
-                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " />
-
-            <TextView
-                android:id="@+id/heading2"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:gravity="center"
-                android:accessibilityHeading="true"
-                android:text="Heading 2" />
-
+                android:text="@string/useful_link_1" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="5dp"
-                android:gravity="center"
-                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " />
-
-            <TextView
-                android:id="@+id/heading3"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:gravity="center"
-                android:accessibilityHeading="true"
-                android:text="Heading 3" />
-
+                android:text="@string/useful_link_2" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="5dp"
-                android:gravity="center"
-                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " />
+                android:text="@string/useful_link_3" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="5dp"
+                android:text="@string/useful_link_4" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

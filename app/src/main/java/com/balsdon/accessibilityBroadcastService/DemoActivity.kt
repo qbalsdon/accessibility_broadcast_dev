@@ -1,29 +1,15 @@
-package com.balsdon.accessibilityDeveloperService
+package com.balsdon.accessibilityBroadcastService
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.media.AudioManager
 import android.os.Bundle
 import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
-import com.balsdon.accessibilityBroadcastService.AccessibilityActionReceiver
+import androidx.appcompat.widget.SwitchCompat
+import com.balsdon.accessibilityDeveloperService.R
 import kotlinx.coroutines.*
-import java.math.BigDecimal
-import java.math.RoundingMode
-
-const val ACCESSIBILITY_CONTROL_BROADCAST_ACTION = "com.balsdon.talkback.accessibility"
-
-fun Context.showToast(message: String) {
-    android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT)
-        .show()
-}
-
-fun log(label: String, message: String) {
-    android.util.Log.d(label, "[$label]: $message")
-}
+import kotlinx.coroutines.flow.collect
 
 class DemoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,18 +18,6 @@ class DemoActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         setUpButtons()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        updateVolume()
-    }
-
-    private fun updateVolume() {
-        val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_ACCESSIBILITY)
-        val vol = audioManager.getStreamVolume(AudioManager.STREAM_ACCESSIBILITY)
-        val percent = BigDecimal(vol.toDouble() / max.toDouble()).setScale(2, RoundingMode.HALF_EVEN) * BigDecimal(100)
-        volumeLabel.text = "${percent.toInt()}"
     }
 
     private fun broadcastAction(actionParameter: String) = sendBroadcast(Intent().apply {
@@ -65,24 +39,30 @@ class DemoActivity : AppCompatActivity() {
 
         volumeUp.setOnClickListener {
             broadcastAction(AccessibilityActionReceiver.ACTION_VOLUME_UP)
-            delayThen(1000) { updateVolume() }
         }
 
         volumeDown.setOnClickListener {
             broadcastAction(AccessibilityActionReceiver.ACTION_VOLUME_DOWN)
-            delayThen(1000) { updateVolume() }
         }
 
         openMenu.setOnClickListener {
             broadcastAction(AccessibilityActionReceiver.ACTION_SWIPE_UP_RIGHT)
         }
 
-        debugAction.setOnClickListener {
-            broadcastAction(AccessibilityActionReceiver.ACTION_DEBUG)
+        devCurtainButton.setOnClickListener {
+            broadcastAction(AccessibilityActionReceiver.ACTION_CURTAIN)
         }
 
         settingsButton.setOnClickListener {
             //adb shell am start -n com.android.settings/.Settings$AccessibilitySettingsActivity
+            startActivity(Intent().apply {
+                component =
+                    ComponentName.unflattenFromString("com.google.android.marvin.talkback/com.android.talkback.TalkBackPreferencesActivity")
+                addCategory(Intent.CATEGORY_LAUNCHER)
+            })
+        }
+
+        a11ySettingsButton.setOnClickListener {
             startActivity(Intent().apply {
                 component =
                     ComponentName.unflattenFromString("com.android.settings/.Settings\$AccessibilitySettingsActivity")
@@ -91,24 +71,46 @@ class DemoActivity : AppCompatActivity() {
         }
     }
 
-    private fun delayThen(millis: Long, function: () -> Unit) =
-        MainScope().launch {
-            withContext(Dispatchers.IO) { // ensures running on separate thread
-                delay(millis)
-                runOnUiThread {
-                    function()
+    override fun onResume() {
+        super.onResume()
+
+        refreshJob = MainScope().launch {
+            withContext(Dispatchers.IO) {
+                RefreshServiceState(this@DemoActivity).accessibilityServices.collect { serviceList ->
+                    runOnUiThread {
+                        updateSwitches(serviceList)
+                    }
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        refreshJob?.cancel()
+        super.onPause()
+    }
+
+    private fun updateSwitches(serviceList: List<String>) {
+        talkBackSwitch.apply {
+            isChecked = serviceList.contains(TALKBACK_PACKAGE_NAME)
+        }
+
+        abdSwitch.apply {
+            isChecked = serviceList.contains(ABD_PACKAGE_NAME)
+        }
+    }
 
     private val swipeRight: Button by lazy { findViewById(R.id.swipeRight) }
     private val swipeLeft: Button by lazy { findViewById(R.id.swipeLeft) }
     private val openMenu: Button by lazy { findViewById(R.id.openMenu) }
-    private val debugAction: Button by lazy { findViewById(R.id.debugAction) }
     private val settingsButton: Button by lazy { findViewById(R.id.settingsButton) }
     private val volumeUp: AppCompatImageButton by lazy { findViewById(R.id.volumeUp) }
     private val volumeDown: AppCompatImageButton by lazy { findViewById(R.id.volumeDown) }
-    private val volumeLabel: TextView by lazy { findViewById(R.id.volumeLabel) }
+    private val devCurtainButton: Button by lazy { findViewById(R.id.devCurtain) }
+    private val a11ySettingsButton: Button by lazy { findViewById(R.id.a11ySettings) }
 
-    private val audioManager: AudioManager by lazy { getSystemService(AUDIO_SERVICE) as AudioManager }
+    private val talkBackSwitch: SwitchCompat by lazy { findViewById(R.id.talkbackSwitch) }
+    private val abdSwitch: SwitchCompat by lazy { findViewById(R.id.abdSwitch) }
+
+    private var refreshJob: Job? = null
 }

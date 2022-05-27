@@ -6,8 +6,6 @@ import android.content.Intent
 import com.balsdon.accessibilityDeveloperService.AccessibilityDeveloperService
 import com.balsdon.accessibilityDeveloperService.AccessibilityDeveloperService.Companion.DIRECTION_BACK
 import com.balsdon.accessibilityDeveloperService.AccessibilityDeveloperService.Companion.DIRECTION_FORWARD
-import com.balsdon.accessibilityDeveloperService.log
-import com.balsdon.accessibilityDeveloperService.showToast
 
 class AccessibilityActionReceiver : BroadcastReceiver() {
     companion object {
@@ -31,23 +29,15 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
         const val ACTION_VOLUME_MUTE = "ACTION_VOLUME_MUTE"
 
         const val ACTION_WHICH = "ACTION_WHICH"
-        const val ACTION_DEBUG = "ACTION_DEBUG"
 
         const val ACTION_SAY = "ACTION_SAY"
-
-        const val ACTION_SET_LANGUAGE = "ACTION_SET_LANGUAGE"
 
         const val PARAMETER_VOLUME = "PARAMETER_VOLUME"
         const val PARAMETER_ID = "PARAMETER_ID"
         const val PARAMETER_TEXT = "PARAMETER_TEXT"
         const val PARAMETER_HEADING = "PARAMETER_HEADING"
         const val PARAMETER_DIRECTION = "PARAMETER_DIRECTION"
-        const val PARAMETER_COUNTRY = "PARAMETER_COUNTRY"
-        const val PARAMETER_LANGUAGE = "PARAMETER_LANGUAGE"
         const val PARAMETER_TYPE = "PARAMETER_TYPE"
-
-        private const val DEFAULT_COUNTRY = "GB"
-        private const val DEFAULT_LANGUAGE = "EN"
     }
 
     private fun showError(context: Context, message: String) {
@@ -66,8 +56,6 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
             log("AccessibilityActionReceiver", "  ~~> ACTION: [$it]")
             serviceReference.apply {
                 when (it) {
-                    ACTION_DEBUG -> debugAction()
-
                     ACTION_SWIPE_LEFT -> swipeHorizontal(true)
                     ACTION_SWIPE_RIGHT -> swipeHorizontal(false)
                     ACTION_SWIPE_UP -> swipeVertical(true)
@@ -163,11 +151,6 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
                     ACTION_VOLUME_SET -> setVolume(intent.getIntExtra(PARAMETER_VOLUME, 10))
                     ACTION_VOLUME_MUTE -> setVolume(0)
                     ACTION_WHICH -> findFocusedViewInfo()
-                    ACTION_SET_LANGUAGE -> {
-                        val country = intent.getStringExtra(PARAMETER_COUNTRY) ?: DEFAULT_COUNTRY
-                        val language = intent.getStringExtra(PARAMETER_LANGUAGE) ?: DEFAULT_LANGUAGE
-                        setLanguage(language, country)
-                    }
 
                     else -> showError(context, it)
                 }

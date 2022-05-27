@@ -94,6 +94,7 @@ The first two are the same, they fire an intent that will tell the screen reader
  - [Accessibility scanner][7]
  - [Google I/O on Accessibility][8]
  - [Android Accessibility — Resolving common Talkback issues][9]
+ - [Google Accessibility API][17]
 
 ## TODO
 
@@ -103,6 +104,7 @@ The first two are the same, they fire an intent that will tell the screen reader
         - :x: Option 2: Find a method of doing actions that doesn't involve gestures. Currently looking at [AccessibilityNodeInfo.performAction][13]
            - I can navigate the tree myself, but I have no way of knowing if I am consistent with TalkBack
  - Need to create a settings activity. See [Accessibility service configuration][16]
+ - Sort out code structure
  - :white_check_mark: [FEATURE] Add a "perform click" action
  - :white_check_mark: Add a "focus by id" action - might aid [talos][4] scripts
  - [FEATURE] Create a map of the current screen
@@ -116,15 +118,15 @@ The first two are the same, they fire an intent that will tell the screen reader
  - :bug: [BUG] 02 Scroll down to selected element. Currently an accessibility service can only scroll on scrollable nodes. 
  - !FIXED! :bug: [BUG] 03 Do not store an instance in a companion object. It feels wrong, I have not found a better solution yet
  - !FIXED! :bug: [BUG] 04 With new version the distances used for programmatic gestures need to be larger.
- - :bug: [BUG] [05] When the curtain is drawn the data is blank
+ - !FIXED! :bug: [BUG] [05] When the curtain is drawn the data is blank
  - [FEATURE] See what is readable from the API's of Talkback
-   - Get the gesture mappings
+   - [Get the gesture mappings][18]
    - Get the node structure: next, previous
    - Read the current granularity
  - [FEATURE] Improvements to the curtain
    - Initial loading is empty
-   - "Hole mode" - only show certain elements (Headings, links, labels, etc)
- - [FEATURE] Improve the look of the test activity. It's hideous and inaccessible
+   - "Hole" / "Pigeon" mode - only show certain elements (Headings, links, labels, etc)
+ - :white_check_mark: [FEATURE] Improve the look of the test activity. It's hideous and inaccessible
    - Add UI tests to the main screen
 
 [1]: https://stackoverflow.com/questions/37460463/how-to-send-key-down-and-key-up-events-separately-on-android-using-adb
@@ -143,3 +145,5 @@ The first two are the same, they fire an intent that will tell the screen reader
 [14]: https://issuetracker.google.com/u/2/issues/185631661
 [15]: https://github.com/qbalsdon/accessibility_broadcast_dev#scripting
 [16]: https://developer.android.com/guide/topics/ui/accessibility/service#service-config
+[17]: https://developer.android.com/reference/android/view/accessibility/package-summary.html
+[18]: https://github.com/google/talkback/blob/6c0b475b7f52469e309e51bfcc13de58f18176ff/utils/src/main/java/com/google/android/accessibility/utils/AccessibilityServiceCompatUtils.java#L143

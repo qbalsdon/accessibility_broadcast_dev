@@ -2,12 +2,14 @@
     <string name="app_name">Accessibility Broadcast Dev</string>
     <string name="app_description">Allows a developer to send commands via the Android Debug Bridge to have precise control of Android accessibility controls, such as focus and volume. You need to have developer settings enabled, and know how to use broadcasts with Android and the Android Debug Bridge.</string>
 
-    <string name="next">Next</string>
-    <string name="prev">Prev</string>
+    <string name="heading_basic_navigation">Basic Navigation</string>
+    <string name="action_next">Next</string>
+    <string name="action_prev">Previous</string>
+    <string name="action_next_content_description">Shift focus to next element</string>
+    <string name="action_prev_content_description">Shift focus to previous element</string>
     <string name="accessibility_service_label">Accessibility Broadcast Dev</string>
-    <string name="enable_instructions">Run\nadb shell settings put secure enabled_accessibility_services [service1]:[service2]</string>
-    <string name="button_action_open_accessibility_menu"> ~ Open Accessibility Menu ~</string>
-    <string name="button_action_open_settings">Open settings</string>
+    <string name="button_action_open_accessibility_menu">Open TalkBack Menu</string>
+    <string name="button_action_open_settings">Open TalkBack Settings</string>
     <string name="accessibility_service_description">The service allows developers to use the Android Debug Bridge to control accessibility actions for testing and automation purposes. It provides a BroadcastReceiver to which developers can send instructions for accessibility navigation\n\nWhy not use a keyboard with switch access?\n\nBecause then I can\'t debug apps, and if I do wireless debugging, I drain the battery, and w/less debugging is not exactly consistent.</string>
     <string name="button_action_run_debug_action">Run current debug action</string>
     <string name="status_enabled">Enabled</string>
@@ -22,5 +24,18 @@
     <string name="volume">Volume</string>
     <string name="increase_accessibility_volume">Increase accessibility volume</string>
 
-    <string name="link_test">Open <a href="http://www.google.com">Google.com</a></string>
+    <string name="heading_volume_controls">Talkback Volume Control</string>
+    <string name="heading_useful_links">Useful links</string>
+
+    <string name="useful_link_1">Source code for this app can be found on  <a href="https://github.com/qbalsdon/accessibility_broadcast_dev">Github.com</a></string>
+    <string name="useful_link_2">Web Content Accessibility Guidelines  <a href="https://guia-wcag.com/en/">Quick Reference Guide</a></string>
+    <string name="useful_link_3">Access Guide\'s <a href="https://www.accessguide.io/">introduction to Accessibility</a></string>
+    <string name="useful_link_4">Intopia made a really useful <a href="https://intopia.digital/articles/intopia-launches-wcag-2-1-map/">Accessibility map</a></string>
+    <string name="button_action_show_dev_curtain">Show developer curtain</string>
+    <string name="heading_custom_features">Custom Features</string>
+    <string name="enabled_accessibility_services">Enabled Accessibility Services</string>
+    <string name="talkback_label">Google TalkBack</string>
+    <string name="broadcast_dev_label">Accessibility Broadcast Dev</string>
+    <string name="accessibility_scanner_label">Google Accessibility Scanner</string>
+    <string name="button_action_open_accessibility_services">Enable from Accessibility Services</string>
 </resources>

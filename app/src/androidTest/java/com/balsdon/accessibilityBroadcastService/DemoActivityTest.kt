@@ -10,7 +10,6 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.balsdon.accessibilityDeveloperService.DemoActivity
 import com.balsdon.accessibilityDeveloperService.R
 import junit.framework.TestCase
 import org.hamcrest.Matchers
