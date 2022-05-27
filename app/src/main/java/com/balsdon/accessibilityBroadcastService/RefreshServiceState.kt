@@ -11,7 +11,7 @@ class RefreshServiceState(
     private val refreshIntervalMs: Long = 250
 ) {
 
-    private fun getEnabledServices(): List<String> =
+    private fun getEnabledServices(): List<String> = try {
         Settings
             .Secure
             .getString(
@@ -19,6 +19,10 @@ class RefreshServiceState(
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             )
             .split(":")
+    } catch (exception: NullPointerException) {
+        exception.printStackTrace()
+        emptyList()
+    }
 
     val accessibilityServices: Flow<List<String>> = flow {
         while (true) {
