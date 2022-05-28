@@ -16,10 +16,14 @@ data class EventData(
         fun from(a11yEvent: AccessibilityEvent): EventData {
             var previousEventNodeIsHeading = false
             var previousEventNodeIsEditable = false
-            with(a11yEvent.source) {
-                previousEventNodeIsHeading = this.isHeading
-                previousEventNodeIsEditable = this.isEditable
-                recycle()
+            try {
+                with(a11yEvent.source) {
+                    previousEventNodeIsHeading = this.isHeading
+                    previousEventNodeIsEditable = this.isEditable
+                    recycle()
+                }
+            } catch (exception: NullPointerException) {
+                exception.printStackTrace()
             }
 
             return EventData().copy(
