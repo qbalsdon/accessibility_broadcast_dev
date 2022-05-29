@@ -105,6 +105,7 @@ The first two are the same, they fire an intent that will tell the screen reader
            - I can navigate the tree myself, but I have no way of knowing if I am consistent with TalkBack
  - Need to create a settings activity. See [Accessibility service configuration][16]
  - Sort out code structure
+ - Toggle Talkback toast captions?
  - Allow triple tap (interact with links)
  - :white_check_mark: [FEATURE] Add a "perform click" action
  - :white_check_mark: Add a "focus by id" action - might aid [talos][4] scripts

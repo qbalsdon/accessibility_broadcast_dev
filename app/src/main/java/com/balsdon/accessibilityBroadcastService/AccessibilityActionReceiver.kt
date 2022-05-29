@@ -3,6 +3,7 @@ package com.balsdon.accessibilityBroadcastService
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.provider.Settings
 import com.balsdon.accessibilityDeveloperService.AccessibilityDeveloperService
 import com.balsdon.accessibilityDeveloperService.AccessibilityDeveloperService.Companion.DIRECTION_BACK
 import com.balsdon.accessibilityDeveloperService.AccessibilityDeveloperService.Companion.DIRECTION_FORWARD
@@ -48,6 +49,15 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         require(context != null) { "Context is required" }
         require(intent != null) { "Intent is required" }
+        if (!Settings
+                .Secure
+                .getString(
+                    context.contentResolver,
+                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+                ).contains(TALKBACK_PACKAGE_NAME)) {
+            log("AccessibilityActionReceiver", "TalkBack needs to be running.")
+            return
+        }
         val accessibilityDeveloperServiceReference = AccessibilityDeveloperService.instance.get()
         require( accessibilityDeveloperServiceReference != null) { "Service is required" }
         val serviceReference: AccessibilityDeveloperService = accessibilityDeveloperServiceReference
