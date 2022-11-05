@@ -92,7 +92,7 @@ class DemoActivity : AppCompatActivity() {
 
     private fun updateSwitches(serviceList: List<String>) {
         talkBackSwitch.apply {
-            isChecked = serviceList.contains(TALKBACK_PACKAGE_NAME)
+            isChecked = TALKBACK_PACKAGE_NAMES.intersect(serviceList.toSet()).isNotEmpty()
         }
 
         abdSwitch.apply {

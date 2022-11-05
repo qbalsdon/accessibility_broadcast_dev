@@ -49,17 +49,20 @@ class AccessibilityActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         require(context != null) { "Context is required" }
         require(intent != null) { "Intent is required" }
-        if (!Settings
-                .Secure
-                .getString(
-                    context.contentResolver,
-                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-                ).contains(TALKBACK_PACKAGE_NAME)) {
+        if (TALKBACK_PACKAGE_NAMES.intersect(
+                Settings
+                    .Secure
+                    .getString(
+                        context.contentResolver,
+                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+                    ).split(":").toSet()
+            ).isEmpty()
+        ) {
             log("AccessibilityActionReceiver", "TalkBack needs to be running.")
             return
         }
         val accessibilityDeveloperServiceReference = AccessibilityDeveloperService.instance.get()
-        require( accessibilityDeveloperServiceReference != null) { "Service is required" }
+        require(accessibilityDeveloperServiceReference != null) { "Service is required" }
         val serviceReference: AccessibilityDeveloperService = accessibilityDeveloperServiceReference
 
         intent.getStringExtra(ACCESSIBILITY_ACTION)?.let {
