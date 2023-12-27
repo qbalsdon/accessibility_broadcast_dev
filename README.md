@@ -1,3 +1,5 @@
+# Archived: TalkBack for Developers is the replacement for this repo and can be found in [The Android Ally][19]. 
+
 # Accessibility Broadcast Dev
 
 Allow developers and automation testers to interact with Android's Accessibility features using the Android Debug Bridge.
@@ -149,3 +151,4 @@ The first two are the same, they fire an intent that will tell the screen reader
 [16]: https://developer.android.com/guide/topics/ui/accessibility/service#service-config
 [17]: https://developer.android.com/reference/android/view/accessibility/package-summary.html
 [18]: https://github.com/google/talkback/blob/6c0b475b7f52469e309e51bfcc13de58f18176ff/utils/src/main/java/com/google/android/accessibility/utils/AccessibilityServiceCompatUtils.java#L143
+[19]: https://github.com/qbalsdon/android_ally_issues
